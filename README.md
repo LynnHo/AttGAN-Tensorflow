@@ -1,10 +1,10 @@
 <p align="center"> <img src="./pics/first_view.png" width="39%"> <img src="./pics/slide.png" width="54%"> </p>
 
-# <center> [AttGAN](https://arxiv.org/abs/1711.10678) </center>
+# <p align="center"> [AttGAN](https://arxiv.org/abs/1711.10678) </p>
 
 Tensorflow implementation of AttGAN - [Arbitrary Facial Attribute Editing: Only Change What You Want](https://arxiv.org/abs/1711.10678)
 
-<center> <img src="./pics/schema.png" width="95%"> </center>
+<p align="center"> <img src="./pics/schema.png" width="95%"> </p>
 
 ## Exemplar Results
 
@@ -33,31 +33,31 @@ Tensorflow implementation of AttGAN - [Arbitrary Facial Attribute Editing: Only 
 - Example of training
     - training
 
-        ```python
+        ```
         CUDA_VISIBLE_DEVICES=0 python train.py --img_size 128 --shortcut_layers 1 --inject_layers 1 --experiment_name 128_shortcut1_inject1_none
         ```
 
     - tensorboard for loss visualization
 
-        ```python
+        ```
         CUDA_VISIBLE_DEVICES='' tensorboard --logdir ./output/128_shortcut1_inject1_none/summaries --port 6006
         ```
 
 - Example of testing ***single*** attribute
 
-    ```python
+    ```
     CUDA_VISIBLE_DEVICES=0 python test.py --experiment_name 128_shortcut1_inject1_none --test_int 1.0
     ```
 
 - Example of testing ***multiple*** attributes
 
-    ```python
+    ```
     CUDA_VISIBLE_DEVICES=0 python test_multi.py --experiment_name 128_shortcut1_inject1_none --test_atts Pale_Skin Male --test_ints 0.5 0.5
     ```
 
 - Example of attribute intensity control
 
-    ```python
+    ```
     CUDA_VISIBLE_DEVICES=0 python test_slide.py --experiment_name 128_shortcut1_inject1_none --test_att Male --test_int_min -1.0 --test_int_max 1.0 --n_slide 10
     ```
 
