@@ -10,7 +10,7 @@ Tensorflow implementation of AttGAN - [Arbitrary Facial Attribute Editing: Only 
 
 - Inverting 13 attributes respectively (From left to right: Input, Reconstruction, Bald, Bangs, Black_Hair, Blond_Hair, Brown_Hair, Bushy_Eyebrows, Eyeglasses, Male, Mouth_Slightly_Open, Mustache, No_Beard, Pale_Skin, Young)
 
-    <img src="./pics/sample_validation.png" width="95%">
+    <img src="./pics/sample_validation.jpg" width="95%">
 
 - Comparisons with [VAE/GAN](https://arxiv.org/abs/1512.09300) and [IcGAN](https://arxiv.org/abs/1611.06355) on inverting ***single*** attribute
 
