@@ -1,4 +1,4 @@
-<center> <img src="./pics/first_view.png" width="39%"> <img src="./pics/slide.png" width="54%"> </center>
+<p align="center"> <img src="./pics/first_view.png" width="39%"> <img src="./pics/slide.png" width="54%"> </p>
 
 # <center> [AttGAN](https://arxiv.org/abs/1711.10678) </center>
 
