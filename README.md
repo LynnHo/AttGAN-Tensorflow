@@ -9,7 +9,11 @@
 
 ## Exemplar Results
 
-- Inverting 13 attributes respectively (from left to right: *Input, Reconstruction, Bald, Bangs, Black_Hair, Blond_Hair, Brown_Hair, Bushy_Eyebrows, Eyeglasses, Male, Mouth_Slightly_Open, Mustache, No_Beard, Pale_Skin, Young*)
+- See [results.md](./results.md) for more results, we try **higher resolution** and **more attributes** (all **40** attributes!!!) here
+
+- Inverting 13 attributes respectively
+
+    from left to right: *Input, Reconstruction, Bald, Bangs, Black_Hair, Blond_Hair, Brown_Hair, Bushy_Eyebrows, Eyeglasses, Male, Mouth_Slightly_Open, Mustache, No_Beard, Pale_Skin, Young*
 
     <img src="./pics/sample_validation.jpg" width="95%">
 
@@ -20,9 +24,6 @@
 - Comparisons with [VAE/GAN](https://arxiv.org/abs/1512.09300) and [IcGAN](https://arxiv.org/abs/1611.06355) on simultaneously inverting ***multiple*** attributes
 
     <img src="./pics/compare_multi.png" width="95%">
-
-
-- See [results.md](./results.md) for more results
 
 ## Usage
 
@@ -42,6 +43,8 @@
             - https://drive.google.com/drive/folders/0B7EVK8r0v71pOC0wOVZlQnFfaGs
 
 - Examples of training
+    - see [examples.md](./examples.md) for more examples
+
     - training
 
         - for 128x128 images
@@ -110,8 +113,6 @@
     --test_int_max 1.0 \
     --n_slide 10
     ```
-
-- see [examples.md](./examples.md) for more examples
 
 ## Citation
 If you find [AttGAN](https://arxiv.org/abs/1711.10678) useful in your research work, please consider citing:
