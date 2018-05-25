@@ -49,7 +49,7 @@
 
         - for 128x128 images
 
-            ```bash
+            ```sh
             CUDA_VISIBLE_DEVICES=0 \
             python train.py \
             --img_size 128 \
@@ -60,7 +60,7 @@
 
         - for 384x384 images
 
-            ```bash
+            ```sh
             CUDA_VISIBLE_DEVICES=0 \
             python train.py \
             --img_size 384 \
@@ -76,7 +76,7 @@
 
     - tensorboard for loss visualization
 
-        ```bash
+        ```sh
         CUDA_VISIBLE_DEVICES='' \
         tensorboard \
         --logdir ./output/128_shortcut1_inject1_none/summaries \
@@ -85,7 +85,7 @@
 
 - Example of testing ***single*** attribute
 
-    ```bash
+    ```sh
     CUDA_VISIBLE_DEVICES=0 \
     python test.py \
     --experiment_name 128_shortcut1_inject1_none \
@@ -94,7 +94,7 @@
 
 - Example of testing ***multiple*** attributes
 
-    ```bash
+    ```sh
     CUDA_VISIBLE_DEVICES=0 \
     python test_multi.py \
     --experiment_name 128_shortcut1_inject1_none \
@@ -104,7 +104,7 @@
 
 - Example of attribute intensity control
 
-    ```bash
+    ```sh
     CUDA_VISIBLE_DEVICES=0 \
     python test_slide.py \
     --experiment_name 128_shortcut1_inject1_none \
