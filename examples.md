@@ -4,7 +4,7 @@
 
     - for 128x128 images
 
-        ```sh
+        ```console
         CUDA_VISIBLE_DEVICES=0 \
         python train.py \
         --img_size 128 \
@@ -15,7 +15,7 @@
 
     - for 128x128 images with all **40** attributes!
 
-        ```sh
+        ```console
         CUDA_VISIBLE_DEVICES=0 \
         python train.py \
         --img_size 128 \
@@ -34,7 +34,7 @@
 
     - for 256x256 images
 
-        ```sh
+        ```console
         CUDA_VISIBLE_DEVICES=0 \
         python train.py \
         --img_size 256 \
@@ -45,7 +45,7 @@
 
     - for 384x384 images
 
-        ```sh
+        ```console
         CUDA_VISIBLE_DEVICES=0 \
         python train.py \
         --img_size 384 \
