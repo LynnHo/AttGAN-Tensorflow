@@ -19,38 +19,60 @@ import data
 import models
 
 
-""" param """
-att_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
+# ==============================================================================
+# =                                    param                                   =
+# ==============================================================================
 
 parser = argparse.ArgumentParser()
+# model
+att_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
 parser.add_argument('--atts', dest='atts', default=att_default, choices=data.Celeba.att_dict.keys(), nargs='+', help='attributes to learn')
-parser.add_argument('--img_size', dest='img_size', type=int, default=128, help='size of image')
+parser.add_argument('--img_size', dest='img_size', type=int, default=128, help='image size')
+parser.add_argument('--shortcut_layers', dest='shortcut_layers', type=int, default=1, help='shortcut_layers')
+parser.add_argument('--inject_layers', dest='inject_layers', type=int, default=0, help='inject_layers')
+parser.add_argument('--enc_dim', dest='enc_dim', type=int, default=64, help='enc_dim')
+parser.add_argument('--dec_dim', dest='dec_dim', type=int, default=64, help='dec_dim')
+parser.add_argument('--dis_dim', dest='dis_dim', type=int, default=64, help='dis_dim')
+parser.add_argument('--dis_fc_dim', dest='dis_fc_dim', type=int, default=1024, help='dis_fc_dim')
+parser.add_argument('--enc_layers', dest='enc_layers', type=int, default=5, help='enc_layers')
+parser.add_argument('--dec_layers', dest='dec_layers', type=int, default=5, help='dec_layers')
+parser.add_argument('--dis_layers', dest='dis_layers', type=int, default=5, help='dis_layers')
+# training
 parser.add_argument('--epoch', dest='epoch', type=int, default=200, help='# of epochs')
-parser.add_argument('--batch_size', dest='batch_size', type=int, default=32, help='# of images per batch')
-parser.add_argument('--n_sample', dest='n_sample', type=int, default=64, help='# of sample images')
+parser.add_argument('--batch_size', dest='batch_size', type=int, default=32, help='batch size')
 parser.add_argument('--lr', dest='lr', type=float, default=0.0002, help='learning rate')
 parser.add_argument('--n_d', dest='n_d', type=int, default=5, help='# of d updates per g update')
 parser.add_argument('--b_distribution', dest='b_distribution', default='none', choices=['none', 'uniform', 'truncated_normal'], help='b_distribution')
 parser.add_argument('--thres_int', dest='thres_int', type=float, default=0.5, help='thres_int')
 parser.add_argument('--test_int', dest='test_int', type=float, default=1.0, help='test_int')
-parser.add_argument('--shortcut_layers', dest='shortcut_layers', type=int, default=1, choices=[0, 1, 2, 3], help='shortcut_layers')
-parser.add_argument('--inject_layers', dest='inject_layers', type=int, default=0, choices=[0, 1, 2, 3], help='inject_layers')
+parser.add_argument('--n_sample', dest='n_sample', type=int, default=64, help='# of sample images')
+# others
 parser.add_argument('--experiment_name', dest='experiment_name', default=datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), help='experiment_name')
-args = parser.parse_args()
 
+args = parser.parse_args()
+# model
 atts = args.atts
 n_att = len(atts)
 img_size = args.img_size
+shortcut_layers = args.shortcut_layers
+inject_layers = args.inject_layers
+enc_dim = args.enc_dim
+dec_dim = args.dec_dim
+dis_dim = args.dis_dim
+dis_fc_dim = args.dis_fc_dim
+enc_layers = args.enc_layers
+dec_layers = args.dec_layers
+dis_layers = args.dis_layers
+# training
 epoch = args.epoch
 batch_size = args.batch_size
-n_sample = args.n_sample
 lr_base = args.lr
 n_d = args.n_d
 b_distribution = args.b_distribution
 thres_int = args.thres_int
 test_int = args.test_int
-shortcut_layers = args.shortcut_layers
-inject_layers = args.inject_layers
+n_sample = args.n_sample
+# others
 experiment_name = args.experiment_name
 
 pylib.mkdir('./output/%s' % experiment_name)
@@ -58,21 +80,19 @@ with open('./output/%s/setting.txt' % experiment_name, 'w') as f:
     f.write(json.dumps(vars(args), indent=4, separators=(',', ':')))
 
 
-""" graphs """
+# ==============================================================================
+# =                                   graphs                                   =
+# ==============================================================================
+
 # data
 sess = tl.session()
 tr_data = data.Celeba('./data', atts, img_size, batch_size, part='train', sess=sess)
 val_data = data.Celeba('./data', atts, img_size, n_sample, part='val', shuffle=False, sess=sess)
 
 # models
-if img_size == 64:
-    Genc = models.Genc_64
-    Gdec = partial(models.Gdec_64, shortcut_layers=shortcut_layers, inject_layers=inject_layers)
-    D = partial(models.D_64, n_att=n_att)
-else:
-    Genc = models.Genc_128
-    Gdec = partial(models.Gdec_128, shortcut_layers=shortcut_layers, inject_layers=inject_layers)
-    D = partial(models.D_128, n_att=n_att)
+Genc = partial(models.Genc, dim=enc_dim, n_layers=enc_layers)
+Gdec = partial(models.Gdec, dim=dec_dim, n_layers=dec_layers, shortcut_layers=shortcut_layers, inject_layers=inject_layers)
+D = partial(models.D, n_att=n_att, dim=dis_dim, fc_dim=dis_fc_dim, n_layers=dis_layers)
 
 # inputs
 lr = tf.placeholder(dtype=tf.float32, shape=[])
@@ -141,7 +161,10 @@ d_summary = tf.summary.merge([d_summary, lr_summary])
 x_sample = Gdec(Genc(xa_sample, is_training=False), _b_sample, is_training=False)
 
 
-""" train """
+# ==============================================================================
+# =                                    train                                   =
+# ==============================================================================
+
 # iteration counter
 it_cnt, update_cnt = tl.counter()
 
@@ -214,7 +237,6 @@ try:
                 save_dir = './output/%s/sample_training' % experiment_name
                 pylib.mkdir(save_dir)
                 im.imwrite(im.immerge(sample, n_sample, 1), '%s/Epoch_(%d)_(%dof%d).jpg' % (save_dir, epoch, it_in_epoch, it_per_epoch))
-
 except:
     traceback.print_exc()
 finally:

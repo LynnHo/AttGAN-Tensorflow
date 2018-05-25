@@ -18,7 +18,10 @@ import data
 import models
 
 
-""" param """
+# ==============================================================================
+# =                                    param                                   =
+# ==============================================================================
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--experiment_name', dest='experiment_name', help='experiment_name')
 parser.add_argument('--test_att', dest='test_att', help='test_att')
@@ -29,33 +32,42 @@ args_ = parser.parse_args()
 with open('./output/%s/setting.txt' % args_.experiment_name) as f:
     args = json.load(f)
 
+# model
 atts = args['atts']
 n_att = len(atts)
-test_att = args_.test_att
 img_size = args['img_size']
+shortcut_layers = args['shortcut_layers']
+inject_layers = args['inject_layers']
+enc_dim = args['enc_dim']
+dec_dim = args['dec_dim']
+dis_dim = args['dis_dim']
+dis_fc_dim = args['dis_fc_dim']
+enc_layers = args['enc_layers']
+dec_layers = args['dec_layers']
+dis_layers = args['dis_layers']
+# testing
+test_att = args_.test_att
 thres_int = args['thres_int']
 test_int_min = args_.test_int_min
 test_int_max = args_.test_int_max
 n_slide = args_.n_slide
-shortcut_layers = args['shortcut_layers']
-inject_layers = args['inject_layers']
+# others
 experiment_name = args_.experiment_name
 
 assert test_att is not None, 'test_att should be chosen in %s' % (str(atts))
 
 
-""" graphs """
+# ==============================================================================
+# =                                   graphs                                   =
+# ==============================================================================
+
 # data
 sess = tl.session()
 te_data = data.Celeba('./data', atts, img_size, 1, part='test', sess=sess)
 
 # models
-if img_size == 64:
-    Genc = models.Genc_64
-    Gdec = partial(models.Gdec_64, shortcut_layers=shortcut_layers, inject_layers=inject_layers)
-else:
-    Genc = models.Genc_128
-    Gdec = partial(models.Gdec_128, shortcut_layers=shortcut_layers, inject_layers=inject_layers)
+Genc = partial(models.Genc, dim=enc_dim, n_layers=enc_layers)
+Gdec = partial(models.Gdec, dim=dec_dim, n_layers=dec_layers, shortcut_layers=shortcut_layers, inject_layers=inject_layers)
 
 # inputs
 xa_sample = tf.placeholder(tf.float32, shape=[None, img_size, img_size, 3])
@@ -65,7 +77,10 @@ _b_sample = tf.placeholder(tf.float32, shape=[None, n_att])
 x_sample = Gdec(Genc(xa_sample, is_training=False), _b_sample, is_training=False)
 
 
-""" train """
+# ==============================================================================
+# =                                    test                                    =
+# ==============================================================================
+
 # initialization
 ckpt_dir = './output/%s/checkpoints' % experiment_name
 try:
