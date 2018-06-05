@@ -52,6 +52,7 @@ test_int_min = args_.test_int_min
 test_int_max = args_.test_int_max
 n_slide = args_.n_slide
 # others
+use_cropped_img = args['use_cropped_img']
 experiment_name = args_.experiment_name
 
 assert test_att is not None, 'test_att should be chosen in %s' % (str(atts))
@@ -63,7 +64,7 @@ assert test_att is not None, 'test_att should be chosen in %s' % (str(atts))
 
 # data
 sess = tl.session()
-te_data = data.Celeba('./data', atts, img_size, 1, part='test', sess=sess)
+te_data = data.Celeba('./data', atts, img_size, 1, part='test', sess=sess, crop=not use_cropped_img)
 
 # models
 Genc = partial(models.Genc, dim=enc_dim, n_layers=enc_layers)

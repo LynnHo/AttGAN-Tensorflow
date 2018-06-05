@@ -48,6 +48,7 @@ test_atts = args_.test_atts
 thres_int = args['thres_int']
 test_ints = args_.test_ints
 # others
+use_cropped_img = args['use_cropped_img']
 experiment_name = args_.experiment_name
 
 assert test_atts is not None, 'test_atts should be chosen in %s' % (str(atts))
@@ -63,7 +64,7 @@ assert len(test_ints) == len(test_atts), 'the lengths of test_ints and test_atts
 
 # data
 sess = tl.session()
-te_data = data.Celeba('./data', atts, img_size, 1, part='test', sess=sess)
+te_data = data.Celeba('./data', atts, img_size, 1, part='test', sess=sess, crop=not use_cropped_img)
 
 # models
 Genc = partial(models.Genc, dim=enc_dim, n_layers=enc_layers)

@@ -154,14 +154,22 @@ class Celeba(Dataset):
                 'Wearing_Necklace': 37, 'Wearing_Necktie': 38, 'Young': 39}
 
     def __init__(self, data_dir, atts, img_resize, batch_size, prefetch_batch=2, drop_remainder=True,
-                 num_threads=16, shuffle=True, buffer_size=4096, repeat=-1, sess=None, part='train'):
+                 num_threads=16, shuffle=True, buffer_size=4096, repeat=-1, sess=None, part='train', crop=True):
         super(Celeba, self).__init__()
 
         list_file = os.path.join(data_dir, 'list_attr_celeba.txt')
-        img_dir = os.path.join(data_dir, 'img_align_celeba')
+        if crop:
+            img_dir_jpg = os.path.join(data_dir, 'img_align_celeba')
+            img_dir_png = os.path.join(data_dir, 'img_align_celeba_png')
+        else:
+            img_dir_jpg = os.path.join(data_dir, 'img_crop_celeba')
+            img_dir_png = os.path.join(data_dir, 'img_crop_celeba_png')
 
         names = np.loadtxt(list_file, skiprows=2, usecols=[0], dtype=np.str)
-        img_paths = [os.path.join(img_dir, name) for name in names]
+        if os.path.exists(img_dir_png):
+            img_paths = [os.path.join(img_dir_png, name.replace('jpg', 'png')) for name in names]
+        elif os.path.exists(img_dir_jpg):
+            img_paths = [os.path.join(img_dir_jpg, name) for name in names]
 
         att_id = [Celeba.att_dict[att] + 1 for att in atts]
         labels = np.loadtxt(list_file, skiprows=2, usecols=att_id, dtype=np.int64)
@@ -177,12 +185,12 @@ class Celeba(Dataset):
             img_size = 170
 
         def _map_func(img, label):
-            img = tf.image.crop_to_bounding_box(img, offset_h, offset_w, img_size, img_size)
-            img = tf.image.resize_images(img, [img_resize, img_resize]) / 127.5 - 1
+            if crop:
+                img = tf.image.crop_to_bounding_box(img, offset_h, offset_w, img_size, img_size)
+            # img = tf.image.resize_images(img, [img_resize, img_resize]) / 127.5 - 1
             # or
-            # img = tf.image.resize_images(img, [img_resize, img_resize], tf.image.ResizeMethod.BICUBIC)
-            # img = (img - tf.reduce_min(img)) / (tf.reduce_max(img) - tf.reduce_min(img))
-            # img = img * 2 - 1
+            img = tf.image.resize_images(img, [img_resize, img_resize], tf.image.ResizeMethod.BICUBIC)
+            img = tf.clip_by_value(img, 0, 255) / 127.5 - 1
             label = (label + 1) // 2
             return img, label
 

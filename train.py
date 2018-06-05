@@ -28,26 +28,27 @@ parser = argparse.ArgumentParser()
 att_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
 parser.add_argument('--atts', dest='atts', default=att_default, choices=data.Celeba.att_dict.keys(), nargs='+', help='attributes to learn')
 parser.add_argument('--img_size', dest='img_size', type=int, default=128, help='image size')
-parser.add_argument('--shortcut_layers', dest='shortcut_layers', type=int, default=1, help='shortcut_layers')
-parser.add_argument('--inject_layers', dest='inject_layers', type=int, default=0, help='inject_layers')
-parser.add_argument('--enc_dim', dest='enc_dim', type=int, default=64, help='enc_dim')
-parser.add_argument('--dec_dim', dest='dec_dim', type=int, default=64, help='dec_dim')
-parser.add_argument('--dis_dim', dest='dis_dim', type=int, default=64, help='dis_dim')
-parser.add_argument('--dis_fc_dim', dest='dis_fc_dim', type=int, default=1024, help='dis_fc_dim')
-parser.add_argument('--enc_layers', dest='enc_layers', type=int, default=5, help='enc_layers')
-parser.add_argument('--dec_layers', dest='dec_layers', type=int, default=5, help='dec_layers')
-parser.add_argument('--dis_layers', dest='dis_layers', type=int, default=5, help='dis_layers')
+parser.add_argument('--shortcut_layers', dest='shortcut_layers', type=int, default=1)
+parser.add_argument('--inject_layers', dest='inject_layers', type=int, default=0)
+parser.add_argument('--enc_dim', dest='enc_dim', type=int, default=64)
+parser.add_argument('--dec_dim', dest='dec_dim', type=int, default=64)
+parser.add_argument('--dis_dim', dest='dis_dim', type=int, default=64)
+parser.add_argument('--dis_fc_dim', dest='dis_fc_dim', type=int, default=1024)
+parser.add_argument('--enc_layers', dest='enc_layers', type=int, default=5)
+parser.add_argument('--dec_layers', dest='dec_layers', type=int, default=5)
+parser.add_argument('--dis_layers', dest='dis_layers', type=int, default=5)
 # training
 parser.add_argument('--epoch', dest='epoch', type=int, default=200, help='# of epochs')
 parser.add_argument('--batch_size', dest='batch_size', type=int, default=32, help='batch size')
 parser.add_argument('--lr', dest='lr', type=float, default=0.0002, help='learning rate')
 parser.add_argument('--n_d', dest='n_d', type=int, default=5, help='# of d updates per g update')
-parser.add_argument('--b_distribution', dest='b_distribution', default='none', choices=['none', 'uniform', 'truncated_normal'], help='b_distribution')
-parser.add_argument('--thres_int', dest='thres_int', type=float, default=0.5, help='thres_int')
-parser.add_argument('--test_int', dest='test_int', type=float, default=1.0, help='test_int')
+parser.add_argument('--b_distribution', dest='b_distribution', default='none', choices=['none', 'uniform', 'truncated_normal'])
+parser.add_argument('--thres_int', dest='thres_int', type=float, default=0.5)
+parser.add_argument('--test_int', dest='test_int', type=float, default=1.0)
 parser.add_argument('--n_sample', dest='n_sample', type=int, default=64, help='# of sample images')
 # others
-parser.add_argument('--experiment_name', dest='experiment_name', default=datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), help='experiment_name')
+parser.add_argument('--use_cropped_img', dest='use_cropped_img', action='store_true')
+parser.add_argument('--experiment_name', dest='experiment_name', default=datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
 
 args = parser.parse_args()
 # model
@@ -73,6 +74,7 @@ thres_int = args.thres_int
 test_int = args.test_int
 n_sample = args.n_sample
 # others
+use_cropped_img = args.use_cropped_img
 experiment_name = args.experiment_name
 
 pylib.mkdir('./output/%s' % experiment_name)
@@ -86,8 +88,8 @@ with open('./output/%s/setting.txt' % experiment_name, 'w') as f:
 
 # data
 sess = tl.session()
-tr_data = data.Celeba('./data', atts, img_size, batch_size, part='train', sess=sess)
-val_data = data.Celeba('./data', atts, img_size, n_sample, part='val', shuffle=False, sess=sess)
+tr_data = data.Celeba('./data', atts, img_size, batch_size, part='train', sess=sess, crop=not use_cropped_img)
+val_data = data.Celeba('./data', atts, img_size, n_sample, part='val', shuffle=False, sess=sess, crop=not use_cropped_img)
 
 # models
 Genc = partial(models.Genc, dim=enc_dim, n_layers=enc_layers)

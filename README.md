@@ -42,6 +42,10 @@
             - https://pan.baidu.com/s/1eSNpdRG#list/path=%2FCelebA%2FAnno&parentPath=%2F or
             - https://drive.google.com/drive/folders/0B7EVK8r0v71pOC0wOVZlQnFfaGs
 
+- [HD-Celeba](https://github.com/LynnHo/HD-CelebA-Cropper) (optional)
+    - the images of ***img_align_celeba.zip*** are low resolution and uncropped, higher resolution and cropped images are available [here](https://github.com/LynnHo/HD-CelebA-Cropper)
+    - the high quality data should be placed in ***./data/img_crop_celeba/\*.jpg***
+
 - Examples of training
     - see [examples.md](./examples.md) for more examples
 
@@ -72,6 +76,23 @@
             --inject_layers 1 \
             --n_sample 24 \
             --experiment_name 384_shortcut1_inject1_none
+            ```
+
+        - for 384x384 HD images (need [HD-Celeba](https://github.com/LynnHo/HD-CelebA-Cropper))
+
+            ```console
+            CUDA_VISIBLE_DEVICES=0 \
+            python train.py \
+            --img_size 384 \
+            --enc_dim 48 \
+            --dec_dim 48 \
+            --dis_dim 48 \
+            --dis_fc_dim 512 \
+            --shortcut_layers 1 \
+            --inject_layers 1 \
+            --n_sample 24 \
+            --experiment_name 384_shortcut1_inject1_none \
+            --use_cropped_img
             ```
 
     - tensorboard for loss visualization

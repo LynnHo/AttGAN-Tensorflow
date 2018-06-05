@@ -46,6 +46,7 @@ dis_layers = args['dis_layers']
 thres_int = args['thres_int']
 test_int = args_.test_int
 # others
+use_cropped_img = args['use_cropped_img']
 experiment_name = args_.experiment_name
 
 
@@ -55,7 +56,7 @@ experiment_name = args_.experiment_name
 
 # data
 sess = tl.session()
-te_data = data.Celeba('./data', atts, img_size, 1, part='test', sess=sess)
+te_data = data.Celeba('./data', atts, img_size, 1, part='test', sess=sess, crop=not use_cropped_img)
 
 # models
 Genc = partial(models.Genc, dim=enc_dim, n_layers=enc_layers)
