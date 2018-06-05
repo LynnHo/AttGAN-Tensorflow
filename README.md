@@ -91,8 +91,8 @@
             --shortcut_layers 1 \
             --inject_layers 1 \
             --n_sample 24 \
-            --experiment_name 384_shortcut1_inject1_none \
-            --use_cropped_img
+            --use_cropped_img \
+            --experiment_name 384_shortcut1_inject1_none_hd
             ```
 
     - tensorboard for loss visualization

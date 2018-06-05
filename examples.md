@@ -59,3 +59,19 @@
         --experiment_name 384_shortcut1_inject1_none
         ```
 
+    - for 384x384 HD images (need [HD-Celeba](https://github.com/LynnHo/HD-CelebA-Cropper))
+
+        ```console
+        CUDA_VISIBLE_DEVICES=0 \
+        python train.py \
+        --img_size 384 \
+        --enc_dim 48 \
+        --dec_dim 48 \
+        --dis_dim 48 \
+        --dis_fc_dim 512 \
+        --shortcut_layers 1 \
+        --inject_layers 1 \
+        --n_sample 24 \
+        --use_cropped_img \
+        --experiment_name 384_shortcut1_inject1_none_hd
+        ```
