@@ -28,23 +28,32 @@
 ## Usage
 
 - Prerequisites
-    - tensorflow 1.7 or 1.8
-    - python 2.7 or 3.6
+    - Tensorflow 1.7 or 1.8
+    - Python 2.7 or 3.6
 
-- [Celeba](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf) dataset
-    - [Images](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AADSNUu0bseoCKuxuI5ZeTl1a/Img?dl=0&preview=img_align_celeba.zip) should be placed in ***./data/img_align_celeba/\*.jpg***
-    - [Attribute labels](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AAA8YmAHNNU6BEfWMPMfM6r9a/Anno?dl=0&preview=list_attr_celeba.txt) should be placed in ***./data/list_attr_celeba.txt***
-    - the above links might be inaccessible, the alternative is
-        - ***img_align_celeba.zip***
-            - https://pan.baidu.com/s/1eSNpdRG#list/path=%2FCelebA%2FImg or
-            - https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg
-        - ***list_attr_celeba.txt***
-            - https://pan.baidu.com/s/1eSNpdRG#list/path=%2FCelebA%2FAnno&parentPath=%2F or
-            - https://drive.google.com/drive/folders/0B7EVK8r0v71pOC0wOVZlQnFfaGs
+- Dataset
+    - [Celeba](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf) dataset
+        - [Images](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AADSNUu0bseoCKuxuI5ZeTl1a/Img?dl=0&preview=img_align_celeba.zip) should be placed in ***./data/img_align_celeba/\*.jpg***
+        - [Attribute labels](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AAA8YmAHNNU6BEfWMPMfM6r9a/Anno?dl=0&preview=list_attr_celeba.txt) should be placed in ***./data/list_attr_celeba.txt***
+        - the above links might be inaccessible, the alternative is
+            - ***img_align_celeba.zip***
+                - https://pan.baidu.com/s/1eSNpdRG#list/path=%2FCelebA%2FImg or
+                - https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg
+            - ***list_attr_celeba.txt***
+                - https://pan.baidu.com/s/1eSNpdRG#list/path=%2FCelebA%2FAnno&parentPath=%2F or
+                - https://drive.google.com/drive/folders/0B7EVK8r0v71pOC0wOVZlQnFfaGs
 
-- [HD-Celeba](https://github.com/LynnHo/HD-CelebA-Cropper) (optional)
-    - the images of ***img_align_celeba.zip*** are low resolution and uncropped, higher resolution and cropped images are available [here](https://github.com/LynnHo/HD-CelebA-Cropper)
-    - the high quality data should be placed in ***./data/img_crop_celeba/\*.jpg***
+    - [HD-Celeba](https://github.com/LynnHo/HD-CelebA-Cropper) (optional)
+        - the images of ***img_align_celeba.zip*** are low resolution and uncropped, higher resolution and cropped images are available [here](https://github.com/LynnHo/HD-CelebA-Cropper)
+        - the high quality data should be placed in ***./data/img_crop_celeba/\*.jpg***
+
+- [Well-trained models](https://drive.google.com/open?id=11uEWeQNLAs7eOPcZkfKkraQuYS-LGz_7): download the models you need and unzip the files to ***./output/*** as below,
+
+    ```
+    output
+    ├── 128_shortcut1_inject1_none
+    └── 384_shortcut1_inject1_none_hd
+    ```
 
 - Examples of training
     - see [examples.md](./examples.md) for more examples
