@@ -75,18 +75,22 @@ def D(x, n_att, dim=64, fc_dim=MAX_DIM, n_layers=5):
             d = min(dim * 2**i, MAX_DIM)
             y = conv_in_lrelu(y, d, 4, 2)
 
-        logit_wgan = lrelu(fc(y, fc_dim))
-        logit_wgan = fc(logit_wgan, 1)
+        logit_gan = lrelu(fc(y, fc_dim))
+        logit_gan = fc(logit_gan, 1)
 
         logit_att = lrelu(fc(y, fc_dim))
         logit_att = fc(logit_att, n_att)
 
-        return logit_wgan, logit_att
+        return logit_gan, logit_att
 
 
-def gradient_penalty(real, fake, f):
-    def interpolate(a, b):
+def gradient_penalty(f, real, fake=None):
+    def _interpolate(a, b=None):
         with tf.name_scope('interpolate'):
+            if b is None:   # interpolation in DRAGAN
+                beta = tf.random_uniform(shape=tf.shape(a), minval=0., maxval=1.)
+                _, variance = tf.nn.moments(a, range(a.shape.ndims))
+                b = a + 0.5 * tf.sqrt(variance) * beta
             shape = [tf.shape(a)[0]] + [1] * (a.shape.ndims - 1)
             alpha = tf.random_uniform(shape=shape, minval=0., maxval=1.)
             inter = a + alpha * (b - a)
@@ -94,11 +98,10 @@ def gradient_penalty(real, fake, f):
             return inter
 
     with tf.name_scope('gradient_penalty'):
-        x = interpolate(real, fake)
+        x = _interpolate(real, fake)
         pred = f(x)
         if isinstance(pred, tuple):
             pred = pred[0]
-
         grad = tf.gradients(pred, x)[0]
         norm = tf.norm(slim.flatten(grad), axis=1)
         gp = tf.reduce_mean((norm - 1.)**2)

@@ -27,7 +27,7 @@ parser = argparse.ArgumentParser()
 # model
 att_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
 parser.add_argument('--atts', dest='atts', default=att_default, choices=data.Celeba.att_dict.keys(), nargs='+', help='attributes to learn')
-parser.add_argument('--img_size', dest='img_size', type=int, default=128, help='image size')
+parser.add_argument('--img_size', dest='img_size', type=int, default=128)
 parser.add_argument('--shortcut_layers', dest='shortcut_layers', type=int, default=1)
 parser.add_argument('--inject_layers', dest='inject_layers', type=int, default=0)
 parser.add_argument('--enc_dim', dest='enc_dim', type=int, default=64)
@@ -38,8 +38,9 @@ parser.add_argument('--enc_layers', dest='enc_layers', type=int, default=5)
 parser.add_argument('--dec_layers', dest='dec_layers', type=int, default=5)
 parser.add_argument('--dis_layers', dest='dis_layers', type=int, default=5)
 # training
+parser.add_argument('--mode', dest='mode', default='wgan', choices=['wgan', 'lsgan', 'dcgan'])
 parser.add_argument('--epoch', dest='epoch', type=int, default=200, help='# of epochs')
-parser.add_argument('--batch_size', dest='batch_size', type=int, default=32, help='batch size')
+parser.add_argument('--batch_size', dest='batch_size', type=int, default=32)
 parser.add_argument('--lr', dest='lr', type=float, default=0.0002, help='learning rate')
 parser.add_argument('--n_d', dest='n_d', type=int, default=5, help='# of d updates per g update')
 parser.add_argument('--b_distribution', dest='b_distribution', default='none', choices=['none', 'uniform', 'truncated_normal'])
@@ -65,6 +66,7 @@ enc_layers = args.enc_layers
 dec_layers = args.dec_layers
 dis_layers = args.dis_layers
 # training
+mode = args.mode
 epoch = args.epoch
 batch_size = args.batch_size
 lr_base = args.lr
@@ -120,20 +122,41 @@ with tf.control_dependencies([xb_]):
     xa_ = Gdec(z, _a)
 
 # discriminate
-xa_logit_wgan, xa_logit_att = D(xa)
-xb__logit_wgan, xb__logit_att = D(xb_)
+xa_logit_gan, xa_logit_att = D(xa)
+xb__logit_gan, xb__logit_att = D(xb_)
 
-# x discriminator losses
-x_gp = models.gradient_penalty(xa, xb_, D)
-x_wd = tf.reduce_mean(xa_logit_wgan) - tf.reduce_mean(xb__logit_wgan)
+# discriminator losses
+if mode == 'wgan':  # wgan-gp
+    wd = tf.reduce_mean(xa_logit_gan) - tf.reduce_mean(xb__logit_gan)
+    d_loss_gan = -wd
+    gp = models.gradient_penalty(D, xa, xb_)
+elif mode == 'lsgan':  # lsgan-gp
+    xa_gan_loss = tf.losses.mean_squared_error(tf.ones_like(xa_logit_gan), xa_logit_gan)
+    xb__gan_loss = tf.losses.mean_squared_error(tf.zeros_like(xb__logit_gan), xb__logit_gan)
+    d_loss_gan = xa_gan_loss + xb__gan_loss
+    gp = models.gradient_penalty(D, xa)
+elif mode == 'dcgan':  # dcgan-gp
+    xa_gan_loss = tf.losses.sigmoid_cross_entropy(tf.ones_like(xa_logit_gan), xa_logit_gan)
+    xb__gan_loss = tf.losses.sigmoid_cross_entropy(tf.zeros_like(xb__logit_gan), xb__logit_gan)
+    d_loss_gan = xa_gan_loss + xb__gan_loss
+    gp = models.gradient_penalty(D, xa)
+
 xa_loss_att = tf.losses.sigmoid_cross_entropy(a, xa_logit_att)
-d_loss = -x_wd + x_gp * 10.0 + xa_loss_att
 
-# x generator losses
-xa__loss_rec = tf.losses.absolute_difference(xa, xa_)
+d_loss = d_loss_gan + gp * 10.0 + xa_loss_att
+
+# generator losses
+if mode == 'wgan':
+    xb__loss_gan = -tf.reduce_mean(xb__logit_gan)
+elif mode == 'lsgan':
+    xb__loss_gan = tf.losses.mean_squared_error(tf.ones_like(xb__logit_gan), xb__logit_gan)
+elif mode == 'dcgan':
+    xb__loss_gan = tf.losses.sigmoid_cross_entropy(tf.ones_like(xb__logit_gan), xb__logit_gan)
+
 xb__loss_att = tf.losses.sigmoid_cross_entropy(b, xb__logit_att)
-xb__loss_wgan = -tf.reduce_mean(xb__logit_wgan)
-g_loss = xb__loss_wgan + xb__loss_att * 10.0 + xa__loss_rec * 100.0
+xa__loss_rec = tf.losses.absolute_difference(xa, xa_)
+
+g_loss = xb__loss_gan + xb__loss_att * 10.0 + xa__loss_rec * 100.0
 
 # optim
 d_var = tl.trainable_variables('D')
@@ -144,15 +167,15 @@ g_step = tf.train.AdamOptimizer(lr, beta1=0.5).minimize(g_loss, var_list=g_var)
 
 # summary
 d_summary = tl.summary({
-    x_gp: 'x_gp',
-    x_wd: 'x_wd',
+    d_loss_gan: 'd_loss_gan',
+    gp: 'gp',
     xa_loss_att: 'xa_loss_att',
 }, scope='D')
 
 lr_summary = tl.summary({lr: 'lr'}, scope='Learning_Rate')
 
 g_summary = tl.summary({
-    xb__loss_wgan: 'xb__loss_wgan',
+    xb__loss_gan: 'xb__loss_gan',
     xb__loss_att: 'xb__loss_att',
     xa__loss_rec: 'xa__loss_rec',
 }, scope='G')
