@@ -35,7 +35,7 @@
     - [Celeba](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf) dataset
         - [Images](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AADSNUu0bseoCKuxuI5ZeTl1a/Img?dl=0&preview=img_align_celeba.zip) should be placed in ***./data/img_align_celeba/\*.jpg***
         - [Attribute labels](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AAA8YmAHNNU6BEfWMPMfM6r9a/Anno?dl=0&preview=list_attr_celeba.txt) should be placed in ***./data/list_attr_celeba.txt***
-        - the above links might be inaccessible, the alternative is
+        - the above links might be inaccessible, the alternatives are
             - ***img_align_celeba.zip***
                 - https://pan.baidu.com/s/1eSNpdRG#list/path=%2FCelebA%2FImg or
                 - https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg
