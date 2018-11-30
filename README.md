@@ -3,7 +3,8 @@
 
 # <p align="center"> [AttGAN](https://arxiv.org/abs/1711.10678) </p>
 
-**Tensorflow** implementation of **AttGAN** - [Arbitrary Facial Attribute Editing: Only Change What You Want](https://arxiv.org/abs/1711.10678)
+**Tensorflow** implementation of **AttGAN** - [
+AttGAN: Facial Attribute Editing by Only Changing What You Want](https://arxiv.org/abs/1711.10678)
 
 <p align="center"> <img src="./pics/schema.png" width="95%"> </p>
 
@@ -145,6 +146,7 @@
     ```
 
 ## Citation
+
 If you find [AttGAN](https://arxiv.org/abs/1711.10678) useful in your research work, please consider citing:
 
     @article{he2017arbitrary,
@@ -153,3 +155,9 @@ If you find [AttGAN](https://arxiv.org/abs/1711.10678) useful in your research w
       journal={arXiv preprint arXiv:1711.10678},
       year={2017}
     }
+
+## Related
+
+- An unofficial [demo video](https://www.youtube.com/watch?v=gnN4ZjEWe-8) by
+王一凡
+ :-D.
