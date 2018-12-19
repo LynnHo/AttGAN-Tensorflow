@@ -246,10 +246,6 @@ class Celeba(Dataset):
                 for n in ['Straight_Hair', 'Wavy_Hair']:
                     if n != att_name:
                         _set(att, 0, n)
-            elif att_name in ['Mustache', 'No_Beard'] and att[att_id] == 1:
-                for n in ['Mustache', 'No_Beard']:
-                    if n != att_name:
-                        _set(att, 0, n)
 
         return att_batch
 
