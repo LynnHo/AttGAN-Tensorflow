@@ -10,7 +10,7 @@ AttGAN: Facial Attribute Editing by Only Changing What You Want](https://arxiv.o
 
 ## Other Implementations
 
-- [[Pytorch]](https://github.com/elvisyjlin/AttGAN-PyTorch)(by Yu-Jing Lin)
+- [[Pytorch]](https://github.com/elvisyjlin/AttGAN-PyTorch) (by Yu-Jing Lin)
 
 ## Exemplar Results
 
