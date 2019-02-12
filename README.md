@@ -8,6 +8,10 @@ AttGAN: Facial Attribute Editing by Only Changing What You Want](https://arxiv.o
 
 <p align="center"> <img src="./pics/schema.png" width="95%"> </p>
 
+## Other Implementations
+
+- [[Pytorch]](https://github.com/elvisyjlin/AttGAN-PyTorch)(by Yu-Jing Lin)
+
 ## Exemplar Results
 
 - See [results.md](./results.md) for more results, we try **higher resolution** and **more attributes** (all **40** attributes!!!) here
