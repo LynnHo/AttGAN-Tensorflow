@@ -153,8 +153,8 @@ AttGAN: Facial Attribute Editing by Only Changing What You Want](https://arxiv.o
 
 If you find [AttGAN](https://arxiv.org/abs/1711.10678) useful in your research work, please consider citing:
 
-    @article{he2017arbitrary,
-      title={Arbitrary Facial Attribute Editing: Only Change What You Want},
+    @article{he2017attgan,
+      title={Attgan: Facial Attribute Editing by Only Changing What You Want},
       author={He, Zhenliang and Zuo, Wangmeng and Kan, Meina and Shan, Shiguang and Chen, Xilin},
       journal={arXiv preprint arXiv:1711.10678},
       year={2017}
