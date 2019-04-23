@@ -14,7 +14,9 @@
 
 - An unofficial [demo video](https://www.youtube.com/watch?v=gnN4ZjEWe-8) of AttGAN by 王一凡 :-D
 
-- ***An excellent work built upon our code - [STGAN](https://github.com/csmliu/STGAN) (CVPR 2019)***
+- ***An excellent work built upon our code - [STGAN](https://github.com/csmliu/STGAN) (CVPR 2019) by Ming Liu***
+
+- [Fashion-AttGAN](https://github.com/ChanningPing/Fashion_Attribute_Editing) (CVPR 2019 FSS-USAD Workshop) by Qing Ping
 
 ## Exemplar Results
 
