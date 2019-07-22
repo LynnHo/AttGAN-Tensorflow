@@ -11,7 +11,7 @@
 
 - Other AttGAN implementations
     - [AttGAN-PyTorch](https://github.com/elvisyjlin/AttGAN-PyTorch) by Yu-Jing Lin
-    - [AttGAN-PaddlePaddle](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/PaddleGAN#%E6%A8%A1%E5%9E%8B%E7%AE%80%E4%BB%8B) by ceci3 and zhumanyu (***our AttGAN is one of the official reproduced models of PaddlePaddle***)
+    - [AttGAN-PaddlePaddle](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/PaddleGAN#%E6%A8%A1%E5%9E%8B%E7%AE%80%E4%BB%8B) by ceci3 and zhumanyu (***our AttGAN is one of the official reproduced models of [PaddlePaddle](https://github.com/PaddlePaddle?type=source)***)
 
 - Closely related works
     - ***An excellent work built upon our code - [STGAN](https://github.com/csmliu/STGAN) (CVPR 2019) by Ming Liu***
