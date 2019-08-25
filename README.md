@@ -1,11 +1,14 @@
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="./pics/first_view.png" width="36%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./pics/slide.png" width="54%">
+<p align="center"> <img src="./pics/first_view.png" width="36%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./pics/slide.png" width="54%"> </p>
+
+<p align="center"> <img src="./pics/style.jpg" width="92%"> </p>
+
 ---
 
-# <p align="center"> [AttGAN](https://arxiv.org/abs/1711.10678) </p>
+# <p align="center"> [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) </p>
 
-**Tensorflow** implementation of **AttGAN** - [AttGAN: Facial Attribute Editing by Only Changing What You Want](https://arxiv.org/abs/1711.10678)
+**TF** implementation of **AttGAN**: Facial Attribute Editing by Only Changing What You Want [[TIP Nov. 2019](https://ieeexplore.ieee.org/document/8718508?source=authoralert), [arXiv Nov. 2017](https://arxiv.org/pdf/1711.10678v1.pdf)]
 
-<p align="center"> <img src="./pics/schema.png" width="95%"> </p>
+<p align="center"> <img src="./pics/schema.jpg" width="100%"> </p>
 
 ## Related
 
@@ -41,7 +44,7 @@
 ## Usage
 
 - Prerequisites
-    - Tensorflow 1.7 or 1.8
+    - Tensorflow 1.7+
     - Python 2.7 or 3.6
 
 - Dataset
@@ -50,11 +53,11 @@
         - [Attribute labels](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AAA8YmAHNNU6BEfWMPMfM6r9a/Anno?dl=0&preview=list_attr_celeba.txt) should be placed in ***./data/list_attr_celeba.txt***
         - the above links might be inaccessible, the alternatives are
             - ***img_align_celeba.zip***
-                - https://pan.baidu.com/s/1eSNpdRG#list/path=%2FCelebA%2FImg or
-                - https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg
+                - [Baidu Netdisk](https://pan.baidu.com/s/1eSNpdRG#list/path=%2Fsharelink2785600790-938296576863897%2FCelebA%2FImg&parentPath=%2Fsharelink2785600790-938296576863897) or
+                - [Google Drive](https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg)
             - ***list_attr_celeba.txt***
-                - https://pan.baidu.com/s/1eSNpdRG#list/path=%2FCelebA%2FAnno&parentPath=%2F or
-                - https://drive.google.com/drive/folders/0B7EVK8r0v71pOC0wOVZlQnFfaGs
+                - [Baidu Netdisk](https://pan.baidu.com/s/1eSNpdRG#list/path=%2Fsharelink2785600790-938296576863897%2FCelebA%2FAnno&parentPath=%2Fsharelink2785600790-938296576863897) or
+                - [Google Drive](https://drive.google.com/drive/folders/0B7EVK8r0v71pOC0wOVZlQnFfaGs)
 
     - [HD-Celeba](https://github.com/LynnHo/HD-CelebA-Cropper) (optional)
         - the images of ***img_align_celeba.zip*** are low resolution and uncropped, higher resolution and cropped images are available [here](https://github.com/LynnHo/HD-CelebA-Cropper)
@@ -159,11 +162,17 @@
 
 ## Citation
 
-If you find [AttGAN](https://arxiv.org/abs/1711.10678) useful in your research work, please consider citing:
+If you find [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) useful in your research work, please consider citing:
 
-    @article{he2017attgan,
-      title={Attgan: Facial Attribute Editing by Only Changing What You Want},
-      author={He, Zhenliang and Zuo, Wangmeng and Kan, Meina and Shan, Shiguang and Chen, Xilin},
-      journal={arXiv preprint arXiv:1711.10678},
-      year={2017}
-    }
+    @ARTICLE{8718508,
+    author={Z. {He} and W. {Zuo} and M. {Kan} and S. {Shan} and X. {Chen}},
+    journal={IEEE Transactions on Image Processing},
+    title={AttGAN: Facial Attribute Editing by Only Changing What You Want},
+    year={2019},
+    volume={28},
+    number={11},
+    pages={5464-5478},
+    keywords={Face;Facial features;Task analysis;Decoding;Image reconstruction;Hair;Gallium nitride;Facial attribute editing;attribute style manipulation;adversarial learning},
+    doi={10.1109/TIP.2019.2916751},
+    ISSN={1057-7149},
+    month={Nov},}
