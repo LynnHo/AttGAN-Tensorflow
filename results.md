@@ -1,4 +1,4 @@
-# <p align="center"> [AttGAN](https://arxiv.org/abs/1711.10678) Results </p>
+# <p align="center"> [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) Results </p>
 
 - Results of **40**-attribute model!!! It's amazing that AttGAN still works although some attributes are not good enough
 

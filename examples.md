@@ -1,4 +1,4 @@
-# <p align="center"> [AttGAN](https://arxiv.org/abs/1711.10678) Usage </p>
+# <p align="center"> [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) Usage </p>
 
 - training
 
