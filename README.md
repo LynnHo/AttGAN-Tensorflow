@@ -4,9 +4,9 @@
 
 ---
 
-# <p align="center"> [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) </p>
+# <p align="center"> [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) <br> <font size=4> [TIP Nov. 2019](https://ieeexplore.ieee.org/document/8718508?source=authoralert), [arXiv Nov. 2017](https://arxiv.org/pdf/1711.10678v1.pdf) </font> </p>
 
-**TF** implementation of **AttGAN**: Facial Attribute Editing by Only Changing What You Want [[TIP Nov. 2019](https://ieeexplore.ieee.org/document/8718508?source=authoralert), [arXiv Nov. 2017](https://arxiv.org/pdf/1711.10678v1.pdf)]
+**TensorFlow** implementation of **AttGAN**: Facial Attribute Editing by Only Changing What You Want
 
 <p align="center"> <img src="./pics/schema.jpg" width="100%"> </p>
 
@@ -44,7 +44,7 @@
 ## Usage
 
 - Prerequisites
-    - Tensorflow 1.7+
+    - TensorFlow 1.7+
     - Python 2.7 or 3.6
 
 - Dataset
