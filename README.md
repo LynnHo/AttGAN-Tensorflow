@@ -12,20 +12,25 @@
 
 ## Related
 
-- Other AttGAN implementations
+- Other implementations of AttGAN
+
     - [AttGAN-PyTorch](https://github.com/elvisyjlin/AttGAN-PyTorch) by Yu-Jing Lin
-    - [AttGAN-PaddlePaddle](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/PaddleGAN#%E6%A8%A1%E5%9E%8B%E7%AE%80%E4%BB%8B) by ceci3 and zhumanyu (***our AttGAN is one of the official reproduced models of [PaddlePaddle](https://github.com/PaddlePaddle?type=source)***)
+
+    - [AttGAN-PaddlePaddle](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/PaddleGAN#%E6%A8%A1%E5%9E%8B%E7%AE%80%E4%BB%8B) by ceci3 and zhumanyu (**AttGAN is one of the official reproduced models of [PaddlePaddle](https://github.com/PaddlePaddle?type=source)**)
 
 - Closely related works
-    - ***An excellent work built upon our code - [STGAN](https://github.com/csmliu/STGAN) (CVPR 2019) by Ming Liu***
+
+    - **An excellent work built upon our code - [STGAN](https://github.com/csmliu/STGAN) (CVPR 2019) by Ming Liu**
+
     - [Changing-the-Memorability](https://github.com/acecreamu/Changing-the-Memorability) (CVPR 2019 MBCCV Workshop) by acecreamu
+
     - [Fashion-AttGAN](https://github.com/ChanningPing/Fashion_Attribute_Editing) (CVPR 2019 FSS-USAD Workshop) by Qing Ping
 
 - An unofficial [demo video](https://www.youtube.com/watch?v=gnN4ZjEWe-8) of AttGAN by 王一凡
 
 ## Exemplar Results
 
-- See [results.md](./results.md) for more results, we try **higher resolution** and **more attributes** (all **40** attributes!!!) here
+- See [results.md](./results.md) for more results, we try **higher resolution** and **more attributes** (all **40** attributes!!!)
 
 - Inverting 13 attributes respectively
 
@@ -33,132 +38,145 @@
 
     <img src="./pics/sample_validation.jpg" width="95%">
 
-- Comparisons with [VAE/GAN](https://arxiv.org/abs/1512.09300) and [IcGAN](https://arxiv.org/abs/1611.06355) on inverting ***single*** attribute
-
-    <img src="./pics/compare.png" width="95%">
-
-- Comparisons with [VAE/GAN](https://arxiv.org/abs/1512.09300) and [IcGAN](https://arxiv.org/abs/1611.06355) on simultaneously inverting ***multiple*** attributes
-
-    <img src="./pics/compare_multi.png" width="95%">
-
 ## Usage
 
-- Prerequisites
-    - TensorFlow 1.7+
-    - Python 2.7 or 3.6
+- Environment
 
-- Dataset
-    - [Celeba](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf) dataset
-        - [Images](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AADSNUu0bseoCKuxuI5ZeTl1a/Img?dl=0&preview=img_align_celeba.zip) should be placed in ***./data/img_align_celeba/\*.jpg***
-        - [Attribute labels](https://www.dropbox.com/sh/8oqt9vytwxb3s4r/AAA8YmAHNNU6BEfWMPMfM6r9a/Anno?dl=0&preview=list_attr_celeba.txt) should be placed in ***./data/list_attr_celeba.txt***
-        - the above links might be inaccessible, the alternatives are
-            - ***img_align_celeba.zip***
-                - [Baidu Netdisk](https://pan.baidu.com/s/1eSNpdRG#list/path=%2Fsharelink2785600790-938296576863897%2FCelebA%2FImg&parentPath=%2Fsharelink2785600790-938296576863897) or
-                - [Google Drive](https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg)
-            - ***list_attr_celeba.txt***
-                - [Baidu Netdisk](https://pan.baidu.com/s/1eSNpdRG#list/path=%2Fsharelink2785600790-938296576863897%2FCelebA%2FAnno&parentPath=%2Fsharelink2785600790-938296576863897) or
-                - [Google Drive](https://drive.google.com/drive/folders/0B7EVK8r0v71pOC0wOVZlQnFfaGs)
+    - Python 3.6
 
-    - [HD-Celeba](https://github.com/LynnHo/HD-CelebA-Cropper) (optional)
-        - the images of ***img_align_celeba.zip*** are low resolution and uncropped, higher resolution and cropped images are available [here](https://github.com/LynnHo/HD-CelebA-Cropper)
-        - the high quality data should be placed in ***./data/img_crop_celeba/\*.jpg***
+    - TensorFlow 1.15
 
-- [Well-trained models](https://drive.google.com/open?id=11uEWeQNLAs7eOPcZkfKkraQuYS-LGz_7): download the models you need and unzip the files to ***./output/*** as below,
+    - OpenCV, scikit-image, tqdm, oyaml
 
-    ```
-    output
-    ├── 128_shortcut1_inject1_none
-    └── 384_shortcut1_inject1_none_hd
-    ```
+    - *we recommend [Anaconda](https://www.anaconda.com/distribution/#download-section) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html#linux-installers), then you can create the AttGAN environment with commands below*
 
-- Examples of training
-    - see [examples.md](./examples.md) for more examples
+        ```console
+        conda create -n AttGAN python=3.6
 
-    - training
+        source activate AttGAN
 
-        - for 128x128 images
+        conda install -c anaconda tensorflow-gpu=1.15
+
+        conda install -c anaconda opencv
+
+        conda install -c anaconda scikit-image
+
+        conda install -c anaconda tqdm
+
+        conda install -c conda-forge oyaml
+        ```
+
+- Data Preparation
+
+    - [CelebA](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf)-unaligned (10.2GB, higher quality than the aligned data)
+
+        - download the dataset
+
+            - img_celeba.7z (move to **./data/img_celeba/img_celeba.7z**): [Google Drive](https://drive.google.com/drive/folders/0B7EVK8r0v71pTUZsaXdaSnZBZzg) or [Baidu Netdisk](https://pan.baidu.com/s/1eSNpdRG#list/path=%2Fsharelink2785600790-938296576863897%2FCelebA%2FImg&parentPath=%2Fsharelink2785600790-938296576863897)
+
+            - annotations.zip (move to **./data/img_celeba/annotations.zip**): [Google Drive](https://drive.google.com/file/d/1xd-d1WRnbt3yJnwh5ORGZI3g-YS-fKM9/view?usp=sharing)
+
+        - unzip and process the data
+
+            ```console
+            7z x ./data/img_celeba/img_celeba.7z/img_celeba.7z.001 -o./data/img_celeba/
+
+            unzip ./data/img_celeba/annotations.zip -d ./data/img_celeba/
+
+            python ./scripts/align.py
+            ```
+
+- Run AttGAN
+
+    - *NOTICE: if you create a new conda environment, remember to activate it before any command*
+
+        ```console
+        source activate AttGAN
+        ```
+
+    - training (see [examples.md](./examples.md) for more training commands)
+
+        ```console
+        CUDA_VISIBLE_DEVICES=0 \
+        python train.py \
+        --load_size 143 \
+        --crop_size 128 \
+        --model model_128 \
+        --experiment_name AttGAN_128
+        ```
+
+    - testing
+
+        - **single** attribute editing (inversion)
 
             ```console
             CUDA_VISIBLE_DEVICES=0 \
-            python train.py \
-            --img_size 128 \
-            --shortcut_layers 1 \
-            --inject_layers 1 \
-            --experiment_name 128_shortcut1_inject1_none
+            python test.py \
+            --experiment_name AttGAN_128
             ```
 
-        - for 384x384 images
+
+        - **multiple** attribute editing (inversion) example
 
             ```console
             CUDA_VISIBLE_DEVICES=0 \
-            python train.py \
-            --img_size 384 \
-            --enc_dim 48 \
-            --dec_dim 48 \
-            --dis_dim 48 \
-            --dis_fc_dim 512 \
-            --shortcut_layers 1 \
-            --inject_layers 1 \
-            --n_sample 24 \
-            --experiment_name 384_shortcut1_inject1_none
+            python test_multi.py \
+            --test_att_names Bushy_Eyebrows Pale_Skin \
+            --experiment_name AttGAN_128
             ```
 
-        - for 384x384 HD images (need [HD-Celeba](https://github.com/LynnHo/HD-CelebA-Cropper))
+        - attribute sliding example
 
             ```console
             CUDA_VISIBLE_DEVICES=0 \
-            python train.py \
-            --img_size 384 \
-            --enc_dim 48 \
-            --dec_dim 48 \
-            --dis_dim 48 \
-            --dis_fc_dim 512 \
-            --shortcut_layers 1 \
-            --inject_layers 1 \
-            --n_sample 24 \
-            --use_cropped_img \
-            --experiment_name 384_shortcut1_inject1_none_hd
+            python test_slide.py \
+            --test_att_name Pale_Skin \
+            --test_int_min -2 \
+            --test_int_max 2 \
+            --test_int_step 0.5 \
+            --experiment_name AttGAN_128
             ```
 
-    - tensorboard for loss visualization
+    - loss visualization
 
         ```console
         CUDA_VISIBLE_DEVICES='' \
         tensorboard \
-        --logdir ./output/128_shortcut1_inject1_none/summaries \
+        --logdir ./output/AttGAN_128/summaries \
         --port 6006
         ```
 
-- Example of testing ***single*** attribute
+    - convert trained model to .pb file
 
-    ```console
-    CUDA_VISIBLE_DEVICES=0 \
-    python test.py \
-    --experiment_name 128_shortcut1_inject1_none \
-    --test_int 1.0
-    ```
+        ```console
+        python to_pb.py --experiment_name AttGAN_128
+        ```
 
-- Example of testing ***multiple*** attributes
+- Using Trained Weights
 
-    ```console
-    CUDA_VISIBLE_DEVICES=0 \
-    python test_multi.py \
-    --experiment_name 128_shortcut1_inject1_none \
-    --test_atts Pale_Skin Male \
-    --test_ints 0.5 0.5
-    ```
+    - alternative trained weights (move to **./output/\*.zip**)
 
-- Example of attribute intensity control
+        - [AttGAN_128.zip](https://drive.google.com/file/d/1Oy4F1xtYdxj4iyiLyaEd-dkGIJ0mwo41/view?usp=sharing) (987.5MB)
 
-    ```console
-    CUDA_VISIBLE_DEVICES=0 \
-    python test_slide.py \
-    --experiment_name 128_shortcut1_inject1_none \
-    --test_att Male \
-    --test_int_min -1.0 \
-    --test_int_max 1.0 \
-    --n_slide 10
-    ```
+            - *including G, D, and the state of the optimizer*
+
+        - [AttGAN_128_generator_only.zip](https://drive.google.com/file/d/1lcQ-ijNrGD4919eJ5Dv-7ja5rsx5p0Tp/view?usp=sharing) (161.5MB)
+
+            - *G only*
+
+        - [AttGAN_384_generator_only.zip](x) (x)
+
+
+    - unzip the file (AttGAN_128.zip for example)
+
+        ```console
+        unzip ./output/AttGAN_128.zip -d ./output/
+        ```
+
+    - testing
+
+        - see above
+
 
 ## Citation
 

@@ -1,113 +1,138 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import argparse
-from functools import partial
-import json
-import traceback
-
+import os
 
 import imlib as im
 import numpy as np
-import pylib
+import pylib as py
 import tensorflow as tf
 import tflib as tl
+import tqdm
 
 import data
-import models
+import module
 
 
 # ==============================================================================
-# =                                    param                                   =
+# =                                   param                                    =
 # ==============================================================================
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--experiment_name', dest='experiment_name', help='experiment_name')
-parser.add_argument('--test_int', dest='test_int', type=float, default=1.0, help='test_int')
-args_ = parser.parse_args()
-with open('./output/%s/setting.txt' % args_.experiment_name) as f:
-    args = json.load(f)
+py.arg('--img_dir', default='./data/img_celeba/aligned/align_size(572,572)_move(0.250,0.000)_face_factor(0.450)_jpg/data')
+py.arg('--test_label_path', default='./data/img_celeba/test_label.txt')
+py.arg('--test_int', type=float, default=2)
 
-# model
-atts = args['atts']
-n_att = len(atts)
-img_size = args['img_size']
-shortcut_layers = args['shortcut_layers']
-inject_layers = args['inject_layers']
-enc_dim = args['enc_dim']
-dec_dim = args['dec_dim']
-dis_dim = args['dis_dim']
-dis_fc_dim = args['dis_fc_dim']
-enc_layers = args['enc_layers']
-dec_layers = args['dec_layers']
-dis_layers = args['dis_layers']
-# testing
-thres_int = args['thres_int']
-test_int = args_.test_int
+
+py.arg('--experiment_name', default='default')
+args_ = py.args()
+
+# output_dir
+output_dir = py.join('output', args_.experiment_name)
+
+# save settings
+args = py.args_from_yaml(py.join(output_dir, 'settings.yml'))
+args.__dict__.update(args_.__dict__)
+
 # others
-use_cropped_img = args['use_cropped_img']
-experiment_name = args_.experiment_name
+n_atts = len(args.att_names)
+
+sess = tl.session()
+sess.__enter__()  # make default
 
 
 # ==============================================================================
-# =                                   graphs                                   =
+# =                               data and model                               =
 # ==============================================================================
 
 # data
-sess = tl.session()
-te_data = data.Celeba('./data', atts, img_size, 1, part='test', sess=sess, crop=not use_cropped_img)
+test_dataset, len_test_dataset = data.make_celeba_dataset(args.img_dir, args.test_label_path, args.att_names, args.n_samples,
+                                                          load_size=args.load_size, crop_size=args.crop_size,
+                                                          training=False, drop_remainder=False, shuffle=False, repeat=None)
+test_iter = test_dataset.make_one_shot_iterator()
 
-# models
-Genc = partial(models.Genc, dim=enc_dim, n_layers=enc_layers)
-Gdec = partial(models.Gdec, dim=dec_dim, n_layers=dec_layers, shortcut_layers=shortcut_layers, inject_layers=inject_layers)
 
-# inputs
-xa_sample = tf.placeholder(tf.float32, shape=[None, img_size, img_size, 3])
-_b_sample = tf.placeholder(tf.float32, shape=[None, n_att])
+# ==============================================================================
+# =                                   graph                                    =
+# ==============================================================================
 
-# sample
-x_sample = Gdec(Genc(xa_sample, is_training=False), _b_sample, is_training=False)
+def sample_graph():
+    # ======================================
+    # =               graph                =
+    # ======================================
+
+    if not os.path.exists(py.join(output_dir, 'generator.pb')):
+        # model
+        Genc, Gdec, _ = module.get_model(args.model, n_atts, weight_decay=args.weight_decay)
+
+        # placeholders & inputs
+        xa = tf.placeholder(tf.float32, shape=[None, args.crop_size, args.crop_size, 3])
+        b_ = tf.placeholder(tf.float32, shape=[None, n_atts])
+
+        # sample graph
+        x = Gdec(Genc(xa, training=False), b_, training=False)
+    else:
+        # load freezed model
+        with tf.gfile.GFile(py.join(output_dir, 'generator.pb'), 'rb') as f:
+            graph_def = tf.GraphDef()
+            graph_def.ParseFromString(f.read())
+            tf.import_graph_def(graph_def, name='generator')
+
+        # placeholders & inputs
+        xa = sess.graph.get_tensor_by_name('generator/xa:0')
+        b_ = sess.graph.get_tensor_by_name('generator/b_:0')
+
+        # sample graph
+        x = sess.graph.get_tensor_by_name('generator/xb:0')
+
+    # ======================================
+    # =            run function            =
+    # ======================================
+
+    save_dir = './output/%s/samples_testing_%s' % (args.experiment_name, '{:g}'.format(args.test_int))
+    py.mkdir(save_dir)
+
+    def run():
+        cnt = 0
+        for _ in tqdm.trange(len_test_dataset):
+            # data for sampling
+            xa_ipt, a_ipt = sess.run(test_iter.get_next())
+            b_ipt_list = [a_ipt]  # the first is for reconstruction
+            for i in range(n_atts):
+                tmp = np.array(a_ipt, copy=True)
+                tmp[:, i] = 1 - tmp[:, i]   # inverse attribute
+                tmp = data.check_attribute_conflict(tmp, args.att_names[i], args.att_names)
+                b_ipt_list.append(tmp)
+
+            x_opt_list = [xa_ipt]
+            for i, b_ipt in enumerate(b_ipt_list):
+                b__ipt = (b_ipt * 2 - 1).astype(np.float32)  # !!!
+                if i > 0:   # i == 0 is for reconstruction
+                    b__ipt[..., i - 1] = b__ipt[..., i - 1] * args.test_int
+                x_opt = sess.run(x, feed_dict={xa: xa_ipt, b_: b__ipt})
+                x_opt_list.append(x_opt)
+            sample = np.transpose(x_opt_list, (1, 2, 0, 3, 4))
+            sample = np.reshape(sample, (sample.shape[0], -1, sample.shape[2] * sample.shape[3], sample.shape[4]))
+
+            for s in sample:
+                cnt += 1
+                im.imwrite(s, '%s/%d.jpg' % (save_dir, cnt))
+
+    return run
+
+
+sample = sample_graph()
 
 
 # ==============================================================================
 # =                                    test                                    =
 # ==============================================================================
 
-# initialization
-ckpt_dir = './output/%s/checkpoints' % experiment_name
-try:
-    tl.load_checkpoint(ckpt_dir, sess)
-except:
-    raise Exception(' [*] No checkpoint!')
+# checkpoint
+if not os.path.exists(py.join(output_dir, 'generator.pb')):
+    checkpoint = tl.Checkpoint(
+        {v.name: v for v in tf.global_variables()},
+        py.join(output_dir, 'checkpoints'),
+        max_to_keep=1
+    )
+    checkpoint.restore().run_restore_ops()
 
-# sample
-try:
-    for idx, batch in enumerate(te_data):
-        xa_sample_ipt = batch[0]
-        a_sample_ipt = batch[1]
-        b_sample_ipt_list = [a_sample_ipt]  # the first is for reconstruction
-        for i in range(len(atts)):
-            tmp = np.array(a_sample_ipt, copy=True)
-            tmp[:, i] = 1 - tmp[:, i]   # inverse attribute
-            tmp = data.Celeba.check_attribute_conflict(tmp, atts[i], atts)
-            b_sample_ipt_list.append(tmp)
+sample()
 
-        x_sample_opt_list = [xa_sample_ipt, np.full((1, img_size, img_size // 10, 3), -1.0)]
-        for i, b_sample_ipt in enumerate(b_sample_ipt_list):
-            _b_sample_ipt = (b_sample_ipt * 2 - 1) * thres_int
-            if i > 0:   # i == 0 is for reconstruction
-                _b_sample_ipt[..., i - 1] = _b_sample_ipt[..., i - 1] * test_int / thres_int
-            x_sample_opt_list.append(sess.run(x_sample, feed_dict={xa_sample: xa_sample_ipt, _b_sample: _b_sample_ipt}))
-        sample = np.concatenate(x_sample_opt_list, 2)
-
-        save_dir = './output/%s/sample_testing' % experiment_name
-        pylib.mkdir(save_dir)
-        im.imwrite(sample.squeeze(0), '%s/%d.png' % (save_dir, idx + 182638))
-
-        print('%d.png done!' % (idx + 182638))
-
-except:
-    traceback.print_exc()
-finally:
-    sess.close()
+sess.close()

@@ -1,15 +1,9 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import datetime
 import timeit
 
 
-class Timer(object):
+class Timer:  # deprecated, use tqdm instead
     """A timer as a context manager.
-
-    Modified from https://github.com/brouberol/contexttimer/blob/master/contexttimer/__init__.py.
 
     Wraps around a timer. A custom timer can be passed
     to the constructor. The default timer is timeit.default_timer.
@@ -18,68 +12,86 @@ class Timer(object):
     On Unix systems, it corresponds to time.time.
     On Windows systems, it corresponds to time.clock.
 
-    Keyword arguments:
-        is_output -- if True, print output after exiting context.
-        format -- 'ms', 's' or 'datetime'
+    Parameters
+    ----------
+    print_at_exit : boolean
+        If True, print when exiting context.
+    format : str
+        `ms`, `s` or `datetime`.
+
+    References
+    ----------
+    - https://github.com/brouberol/contexttimer/blob/master/contexttimer/__init__.py.
+
+
     """
 
-    def __init__(self, timer=timeit.default_timer, is_output=True, fmt='s'):
+    def __init__(self, fmt='s', print_at_exit=True, timer=timeit.default_timer):
         assert fmt in ['ms', 's', 'datetime'], "`fmt` should be 'ms', 's' or 'datetime'!"
-        self._timer = timer
-        self._is_output = is_output
         self._fmt = fmt
+        self._print_at_exit = print_at_exit
+        self._timer = timer
+        self.start()
 
     def __enter__(self):
         """Start the timer in the context manager scope."""
-        self.start()
+        self.restart()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        """Set the end time."""
-        if self._is_output:
+        """Print the end time."""
+        if self._print_at_exit:
             print(str(self))
 
     def __str__(self):
-        if self._fmt != 'datetime':
-            return '%s %s' % (self.elapsed, self._fmt)
-        else:
-            return str(self.elapsed)
+        return self.fmt(self.elapsed)[1]
 
     def start(self):
         self.start_time = self._timer()
 
+    restart = start
+
     @property
     def elapsed(self):
-        """Return the current elapsed time since start."""
-        e = self._timer() - self.start_time
+        """Return the current elapsed time since last (re)start."""
+        return self._timer() - self.start_time
 
+    def fmt(self, second):
         if self._fmt == 'ms':
-            return e * 1000
+            time_fmt = second * 1000
+            time_str = '%s %s' % (time_fmt, self._fmt)
         elif self._fmt == 's':
-            return e
+            time_fmt = second
+            time_str = '%s %s' % (time_fmt, self._fmt)
         elif self._fmt == 'datetime':
-            return datetime.timedelta(seconds=e)
+            time_fmt = datetime.timedelta(seconds=second)
+            time_str = str(time_fmt)
+        return time_fmt, time_str
 
 
-def timer(**timer_kwargs):
+def timeit(run_times=1, **timer_kwargs):
     """Function decorator displaying the function execution time.
 
     All kwargs are the arguments taken by the Timer class constructor.
+
     """
     # store Timer kwargs in local variable so the namespace isn't polluted
     # by different level args and kwargs
 
-    def wrapped_f(f):
-        def wrapped(*args, **kwargs):
-            fmt = '[*] function "%(function_name)s" execution time: %(execution_time)s [*]'
+    def decorator(f):
+        def wrapper(*args, **kwargs):
+            timer_kwargs.update(print_at_exit=False)
             with Timer(**timer_kwargs) as t:
-                out = f(*args, **kwargs)
-            context = {'function_name': f.__name__, 'execution_time': str(t)}
+                for _ in range(run_times):
+                    out = f(*args, **kwargs)
+            fmt = '[*] Execution time of function "%(function_name)s" for %(run_times)d runs is %(execution_time)s = %(execution_time_each)s * %(run_times)d [*]'
+            context = {'function_name': f.__name__, 'run_times': run_times, 'execution_time': t, 'execution_time_each': t.fmt(t.elapsed / run_times)[1]}
             print(fmt % context)
             return out
-        return wrapped
+        return wrapper
 
-    return wrapped_f
+    return decorator
+
 
 if __name__ == "__main__":
     import time
@@ -97,19 +109,17 @@ if __name__ == "__main__":
     # 2
     print(2)
     t = Timer(fmt='ms')
-    t.start()
     time.sleep(2)
     print(t)
 
     t = Timer(fmt='datetime')
-    t.start()
     time.sleep(1)
     print(t)
 
     # 3
     print(3)
 
-    @timer(fmt='ms')
+    @timeit(run_times=5, fmt='s')
     def blah():
         time.sleep(2)
 

@@ -16,10 +16,4 @@
 
     from left to right: *Input, Reconstruction, Bald, Bangs, Black_Hair, Blond_Hair, Brown_Hair, Bushy_Eyebrows, Eyeglasses, Male, Mouth_Slightly_Open, Mustache, No_Beard, Pale_Skin, Young*
 
-    <img src="./pics/sample_validation_384x.jpg" width="95%">
-
-- Results of **384x384 HD**-input model
-
-    from left to right: *Input, Reconstruction, Bald, Bangs, Black_Hair, Blond_Hair, Brown_Hair, Bushy_Eyebrows, Eyeglasses, Male, Mouth_Slightly_Open, Mustache, No_Beard, Pale_Skin, Young*
-
     <img src="./pics/sample_validation_384x_hd.jpg" width="95%">

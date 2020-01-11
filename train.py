@@ -1,270 +1,311 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import argparse
-import datetime
-from functools import partial
-import json
 import traceback
-
 
 import imlib as im
 import numpy as np
-import pylib
+import pylib as py
 import tensorflow as tf
 import tflib as tl
+import tfprob
+import tqdm
 
 import data
-import models
+import module
 
 
 # ==============================================================================
-# =                                    param                                   =
+# =                                   param                                    =
 # ==============================================================================
 
-parser = argparse.ArgumentParser()
-# model
-att_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
-parser.add_argument('--atts', dest='atts', default=att_default, choices=data.Celeba.att_dict.keys(), nargs='+', help='attributes to learn')
-parser.add_argument('--img_size', dest='img_size', type=int, default=128)
-parser.add_argument('--shortcut_layers', dest='shortcut_layers', type=int, default=1)
-parser.add_argument('--inject_layers', dest='inject_layers', type=int, default=0)
-parser.add_argument('--enc_dim', dest='enc_dim', type=int, default=64)
-parser.add_argument('--dec_dim', dest='dec_dim', type=int, default=64)
-parser.add_argument('--dis_dim', dest='dis_dim', type=int, default=64)
-parser.add_argument('--dis_fc_dim', dest='dis_fc_dim', type=int, default=1024)
-parser.add_argument('--enc_layers', dest='enc_layers', type=int, default=5)
-parser.add_argument('--dec_layers', dest='dec_layers', type=int, default=5)
-parser.add_argument('--dis_layers', dest='dis_layers', type=int, default=5)
-# training
-parser.add_argument('--mode', dest='mode', default='wgan', choices=['wgan', 'lsgan', 'dcgan'])
-parser.add_argument('--epoch', dest='epoch', type=int, default=200, help='# of epochs')
-parser.add_argument('--batch_size', dest='batch_size', type=int, default=32)
-parser.add_argument('--lr', dest='lr', type=float, default=0.0002, help='learning rate')
-parser.add_argument('--n_d', dest='n_d', type=int, default=5, help='# of d updates per g update')
-parser.add_argument('--b_distribution', dest='b_distribution', default='none', choices=['none', 'uniform', 'truncated_normal'])
-parser.add_argument('--thres_int', dest='thres_int', type=float, default=0.5)
-parser.add_argument('--test_int', dest='test_int', type=float, default=1.0)
-parser.add_argument('--n_sample', dest='n_sample', type=int, default=64, help='# of sample images')
+default_att_names = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses',
+                     'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
+py.arg('--att_names', choices=data.ATT_ID.keys(), nargs='+', default=default_att_names)
+
+py.arg('--img_dir', default='./data/img_celeba/aligned/align_size(572,572)_move(0.250,0.000)_face_factor(0.450)_jpg/data')
+py.arg('--train_label_path', default='./data/img_celeba/train_label.txt')
+py.arg('--val_label_path', default='./data/img_celeba/val_label.txt')
+py.arg('--load_size', type=int, default=143)
+py.arg('--crop_size', type=int, default=128)
+
+py.arg('--n_epochs', type=int, default=60)
+py.arg('--epoch_start_decay', type=int, default=30)
+py.arg('--batch_size', type=int, default=32)
+py.arg('--learning_rate', type=float, default=2e-4)
+py.arg('--beta_1', type=float, default=0.5)
+
+py.arg('--model', default='model_128', choices=['model_128', 'model_256', 'model_384'])
+
+py.arg('--n_d', type=int, default=5)  # # d updates per g update
+py.arg('--adversarial_loss_mode', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'], default='wgan')
+py.arg('--gradient_penalty_mode', choices=['none', '1-gp', '0-gp', 'lp'], default='1-gp')
+py.arg('--gradient_penalty_sample_mode', choices=['line', 'real', 'fake', 'dragan'], default='line')
+py.arg('--d_gradient_penalty_weight', type=float, default=10.0)
+py.arg('--d_attribute_loss_weight', type=float, default=1.0)
+py.arg('--g_attribute_loss_weight', type=float, default=10.0)
+py.arg('--g_reconstruction_loss_weight', type=float, default=100.0)
+py.arg('--weight_decay', type=float, default=0.0)
+
+py.arg('--n_samples', type=int, default=24)
+py.arg('--test_int', type=float, default=2.0)
+
+py.arg('--experiment_name', default='default')
+args = py.args()
+
+# output_dir
+output_dir = py.join('output', args.experiment_name)
+py.mkdir(output_dir)
+
+# save settings
+py.args_to_yaml(py.join(output_dir, 'settings.yml'), args)
+
 # others
-parser.add_argument('--use_cropped_img', dest='use_cropped_img', action='store_true')
-parser.add_argument('--experiment_name', dest='experiment_name', default=datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
+n_atts = len(args.att_names)
 
-args = parser.parse_args()
-# model
-atts = args.atts
-n_att = len(atts)
-img_size = args.img_size
-shortcut_layers = args.shortcut_layers
-inject_layers = args.inject_layers
-enc_dim = args.enc_dim
-dec_dim = args.dec_dim
-dis_dim = args.dis_dim
-dis_fc_dim = args.dis_fc_dim
-enc_layers = args.enc_layers
-dec_layers = args.dec_layers
-dis_layers = args.dis_layers
-# training
-mode = args.mode
-epoch = args.epoch
-batch_size = args.batch_size
-lr_base = args.lr
-n_d = args.n_d
-b_distribution = args.b_distribution
-thres_int = args.thres_int
-test_int = args.test_int
-n_sample = args.n_sample
-# others
-use_cropped_img = args.use_cropped_img
-experiment_name = args.experiment_name
-
-pylib.mkdir('./output/%s' % experiment_name)
-with open('./output/%s/setting.txt' % experiment_name, 'w') as f:
-    f.write(json.dumps(vars(args), indent=4, separators=(',', ':')))
+sess = tl.session()
+sess.__enter__()  # make default
 
 
 # ==============================================================================
-# =                                   graphs                                   =
+# =                               data and model                               =
 # ==============================================================================
 
 # data
-sess = tl.session()
-tr_data = data.Celeba('./data', atts, img_size, batch_size, part='train', sess=sess, crop=not use_cropped_img)
-val_data = data.Celeba('./data', atts, img_size, n_sample, part='val', shuffle=False, sess=sess, crop=not use_cropped_img)
+train_dataset, len_train_dataset = data.make_celeba_dataset(args.img_dir, args.train_label_path, args.att_names, args.batch_size,
+                                                            load_size=args.load_size, crop_size=args.crop_size,
+                                                            training=True, shuffle=True, repeat=None)
+val_dataset, len_val_dataset = data.make_celeba_dataset(args.img_dir, args.val_label_path, args.att_names, args.n_samples,
+                                                        load_size=args.load_size, crop_size=args.crop_size,
+                                                        training=False, shuffle=True, repeat=None)
+train_iter = train_dataset.make_one_shot_iterator()
+val_iter = val_dataset.make_one_shot_iterator()
 
-# models
-Genc = partial(models.Genc, dim=enc_dim, n_layers=enc_layers)
-Gdec = partial(models.Gdec, dim=dec_dim, n_layers=dec_layers, shortcut_layers=shortcut_layers, inject_layers=inject_layers)
-D = partial(models.D, n_att=n_att, dim=dis_dim, fc_dim=dis_fc_dim, n_layers=dis_layers)
+# model
+Genc, Gdec, D = module.get_model(args.model, n_atts, weight_decay=args.weight_decay)
 
-# inputs
-lr = tf.placeholder(dtype=tf.float32, shape=[])
+# loss functions
+d_loss_fn, g_loss_fn = tfprob.get_adversarial_losses_fn(args.adversarial_loss_mode)
 
-xa = tr_data.batch_op[0]
-a = tr_data.batch_op[1]
-b = tf.random_shuffle(a)
-_a = (tf.to_float(a) * 2 - 1) * thres_int
-if b_distribution == 'none':
-    _b = (tf.to_float(b) * 2 - 1) * thres_int
-elif b_distribution == 'uniform':
-    _b = (tf.to_float(b) * 2 - 1) * tf.random_uniform(tf.shape(b)) * (2 * thres_int)
-elif b_distribution == 'truncated_normal':
-    _b = (tf.to_float(b) * 2 - 1) * (tf.truncated_normal(tf.shape(b)) + 2) / 4.0 * (2 * thres_int)
 
-xa_sample = tf.placeholder(tf.float32, shape=[None, img_size, img_size, 3])
-_b_sample = tf.placeholder(tf.float32, shape=[None, n_att])
+# ==============================================================================
+# =                                   graph                                    =
+# ==============================================================================
 
-# generate
-z = Genc(xa)
-xb_ = Gdec(z, _b)
-with tf.control_dependencies([xb_]):
-    xa_ = Gdec(z, _a)
+def D_train_graph():
+    # ======================================
+    # =               graph                =
+    # ======================================
 
-# discriminate
-xa_logit_gan, xa_logit_att = D(xa)
-xb__logit_gan, xb__logit_att = D(xb_)
+    # placeholders & inputs
+    lr = tf.placeholder(dtype=tf.float32, shape=[])
 
-# discriminator losses
-if mode == 'wgan':  # wgan-gp
-    wd = tf.reduce_mean(xa_logit_gan) - tf.reduce_mean(xb__logit_gan)
-    d_loss_gan = -wd
-    gp = models.gradient_penalty(D, xa, xb_)
-elif mode == 'lsgan':  # lsgan-gp
-    xa_gan_loss = tf.losses.mean_squared_error(tf.ones_like(xa_logit_gan), xa_logit_gan)
-    xb__gan_loss = tf.losses.mean_squared_error(tf.zeros_like(xb__logit_gan), xb__logit_gan)
-    d_loss_gan = xa_gan_loss + xb__gan_loss
-    gp = models.gradient_penalty(D, xa)
-elif mode == 'dcgan':  # dcgan-gp
-    xa_gan_loss = tf.losses.sigmoid_cross_entropy(tf.ones_like(xa_logit_gan), xa_logit_gan)
-    xb__gan_loss = tf.losses.sigmoid_cross_entropy(tf.zeros_like(xb__logit_gan), xb__logit_gan)
-    d_loss_gan = xa_gan_loss + xb__gan_loss
-    gp = models.gradient_penalty(D, xa)
+    xa, a = train_iter.get_next()
+    b = tf.random_shuffle(a)
+    b_ = b * 2 - 1
 
-xa_loss_att = tf.losses.sigmoid_cross_entropy(a, xa_logit_att)
+    # generate
+    z = Genc(xa)
+    xb_ = Gdec(z, b_)
 
-d_loss = d_loss_gan + gp * 10.0 + xa_loss_att
+    # discriminate
+    xa_logit_gan, xa_logit_att = D(xa)
+    xb__logit_gan, xb__logit_att = D(xb_)
 
-# generator losses
-if mode == 'wgan':
-    xb__loss_gan = -tf.reduce_mean(xb__logit_gan)
-elif mode == 'lsgan':
-    xb__loss_gan = tf.losses.mean_squared_error(tf.ones_like(xb__logit_gan), xb__logit_gan)
-elif mode == 'dcgan':
-    xb__loss_gan = tf.losses.sigmoid_cross_entropy(tf.ones_like(xb__logit_gan), xb__logit_gan)
+    # discriminator losses
+    xa_loss_gan, xb__loss_gan = d_loss_fn(xa_logit_gan, xb__logit_gan)
+    gp = tfprob.gradient_penalty(lambda x: D(x)[0], xa, xb_, args.gradient_penalty_mode, args.gradient_penalty_sample_mode)
+    xa_loss_att = tf.losses.sigmoid_cross_entropy(a, xa_logit_att)
+    reg_loss = tf.reduce_sum(D.func.reg_losses)
 
-xb__loss_att = tf.losses.sigmoid_cross_entropy(b, xb__logit_att)
-xa__loss_rec = tf.losses.absolute_difference(xa, xa_)
+    loss = (xa_loss_gan + xb__loss_gan +
+            gp * args.d_gradient_penalty_weight +
+            xa_loss_att * args.d_attribute_loss_weight +
+            reg_loss)
 
-g_loss = xb__loss_gan + xb__loss_att * 10.0 + xa__loss_rec * 100.0
+    # optim
+    step_cnt, _ = tl.counter()
+    step = tf.train.AdamOptimizer(lr, beta1=args.beta_1).minimize(loss, global_step=step_cnt, var_list=D.func.trainable_variables)
 
-# optim
-d_var = tl.trainable_variables('D')
-d_step = tf.train.AdamOptimizer(lr, beta1=0.5).minimize(d_loss, var_list=d_var)
+    # summary
+    with tf.contrib.summary.create_file_writer('./output/%s/summaries/D' % args.experiment_name).as_default(),\
+            tf.contrib.summary.record_summaries_every_n_global_steps(10, global_step=step_cnt):
+        summary = [
+            tl.summary_v2({
+                'loss_gan': xa_loss_gan + xb__loss_gan,
+                'gp': gp,
+                'xa_loss_att': xa_loss_att,
+                'reg_loss': reg_loss
+            }, step=step_cnt, name='D'),
+            tl.summary_v2({'lr': lr}, step=step_cnt, name='learning_rate')
+        ]
 
-g_var = tl.trainable_variables('G')
-g_step = tf.train.AdamOptimizer(lr, beta1=0.5).minimize(g_loss, var_list=g_var)
+    # ======================================
+    # =            run function            =
+    # ======================================
+
+    def run(**pl_ipts):
+        sess.run([step, summary], feed_dict={lr: pl_ipts['lr']})
+
+    return run
+
+
+def G_train_graph():
+    # ======================================
+    # =                 graph              =
+    # ======================================
+
+    # placeholders & inputs
+    lr = tf.placeholder(dtype=tf.float32, shape=[])
+
+    xa, a = train_iter.get_next()
+    b = tf.random_shuffle(a)
+    a_ = a * 2 - 1
+    b_ = b * 2 - 1
+
+    # generate
+    z = Genc(xa)
+    xa_ = Gdec(z, a_)
+    xb_ = Gdec(z, b_)
+
+    # discriminate
+    xb__logit_gan, xb__logit_att = D(xb_)
+
+    # generator losses
+    xb__loss_gan = g_loss_fn(xb__logit_gan)
+    xb__loss_att = tf.losses.sigmoid_cross_entropy(b, xb__logit_att)
+    xa__loss_rec = tf.losses.absolute_difference(xa, xa_)
+    reg_loss = tf.reduce_sum(Genc.func.reg_losses + Gdec.func.reg_losses)
+
+    loss = (xb__loss_gan +
+            xb__loss_att * args.g_attribute_loss_weight +
+            xa__loss_rec * args.g_reconstruction_loss_weight +
+            reg_loss)
+
+    # optim
+    step_cnt, _ = tl.counter()
+    step = tf.train.AdamOptimizer(lr, beta1=args.beta_1).minimize(loss, global_step=step_cnt, var_list=Genc.func.trainable_variables + Gdec.func.trainable_variables)
+
+    # summary
+    with tf.contrib.summary.create_file_writer('./output/%s/summaries/G' % args.experiment_name).as_default(),\
+            tf.contrib.summary.record_summaries_every_n_global_steps(10, global_step=step_cnt):
+        summary = tl.summary_v2({
+            'xb__loss_gan': xb__loss_gan,
+            'xb__loss_att': xb__loss_att,
+            'xa__loss_rec': xa__loss_rec,
+            'reg_loss': reg_loss
+        }, step=step_cnt, name='G')
+
+    # ======================================
+    # =           generator size           =
+    # ======================================
+
+    n_params, n_bytes = tl.count_parameters(Genc.func.variables + Gdec.func.variables)
+    print('Generator Size: n_parameters = %d = %.2fMB' % (n_params, n_bytes / 1024 / 1024))
+
+    # ======================================
+    # =            run function            =
+    # ======================================
+
+    def run(**pl_ipts):
+        sess.run([step, summary], feed_dict={lr: pl_ipts['lr']})
+
+    return run
+
+
+def sample_graph():
+    # ======================================
+    # =               graph                =
+    # ======================================
+
+    # placeholders & inputs
+    xa = tf.placeholder(tf.float32, shape=[None, args.crop_size, args.crop_size, 3])
+    b_ = tf.placeholder(tf.float32, shape=[None, n_atts])
+
+    # sample graph
+    x = Gdec(Genc(xa, training=False), b_, training=False)
+
+    # ======================================
+    # =            run function            =
+    # ======================================
+
+    save_dir = './output/%s/samples_training' % args.experiment_name
+    py.mkdir(save_dir)
+
+    def run(epoch, iter):
+        # data for sampling
+        xa_ipt, a_ipt = sess.run(val_iter.get_next())
+        b_ipt_list = [a_ipt]  # the first is for reconstruction
+        for i in range(n_atts):
+            tmp = np.array(a_ipt, copy=True)
+            tmp[:, i] = 1 - tmp[:, i]   # inverse attribute
+            tmp = data.check_attribute_conflict(tmp, args.att_names[i], args.att_names)
+            b_ipt_list.append(tmp)
+
+        x_opt_list = [xa_ipt]
+        for i, b_ipt in enumerate(b_ipt_list):
+            b__ipt = (b_ipt * 2 - 1).astype(np.float32)  # !!!
+            if i > 0:   # i == 0 is for reconstruction
+                b__ipt[..., i - 1] = b__ipt[..., i - 1] * args.test_int
+            x_opt = sess.run(x, feed_dict={xa: xa_ipt, b_: b__ipt})
+            x_opt_list.append(x_opt)
+        sample = np.transpose(x_opt_list, (1, 2, 0, 3, 4))
+        sample = np.reshape(sample, (-1, sample.shape[2] * sample.shape[3], sample.shape[4]))
+        im.imwrite(sample, '%s/Epoch-%d_Iter-%d.jpg' % (save_dir, epoch, iter))
+
+    return run
+
+
+D_train_step = D_train_graph()
+G_train_step = G_train_graph()
+sample = sample_graph()
+
+
+# ==============================================================================
+# =                                   train                                    =
+# ==============================================================================
+
+# step counter
+step_cnt, update_cnt = tl.counter()
+
+# checkpoint
+checkpoint = tl.Checkpoint(
+    {v.name: v for v in tf.global_variables()},
+    py.join(output_dir, 'checkpoints'),
+    max_to_keep=1
+)
+checkpoint.restore().initialize_or_restore()
 
 # summary
-d_summary = tl.summary({
-    d_loss_gan: 'd_loss_gan',
-    gp: 'gp',
-    xa_loss_att: 'xa_loss_att',
-}, scope='D')
+sess.run(tf.contrib.summary.summary_writer_initializer_op())
 
-lr_summary = tl.summary({lr: 'lr'}, scope='Learning_Rate')
-
-g_summary = tl.summary({
-    xb__loss_gan: 'xb__loss_gan',
-    xb__loss_att: 'xb__loss_att',
-    xa__loss_rec: 'xa__loss_rec',
-}, scope='G')
-
-d_summary = tf.summary.merge([d_summary, lr_summary])
-
-# sample
-x_sample = Gdec(Genc(xa_sample, is_training=False), _b_sample, is_training=False)
-
-
-# ==============================================================================
-# =                                    train                                   =
-# ==============================================================================
-
-# iteration counter
-it_cnt, update_cnt = tl.counter()
-
-# saver
-saver = tf.train.Saver(max_to_keep=1)
-
-# summary writer
-summary_writer = tf.summary.FileWriter('./output/%s/summaries' % experiment_name, sess.graph)
-
-# initialization
-ckpt_dir = './output/%s/checkpoints' % experiment_name
-pylib.mkdir(ckpt_dir)
-try:
-    tl.load_checkpoint(ckpt_dir, sess)
-except:
-    sess.run(tf.global_variables_initializer())
+# learning rate schedule
+lr_fn = tl.LinearDecayLR(args.learning_rate, args.n_epochs, args.epoch_start_decay)
 
 # train
 try:
-    # data for sampling
-    xa_sample_ipt, a_sample_ipt = val_data.get_next()
-    b_sample_ipt_list = [a_sample_ipt]  # the first is for reconstruction
-    for i in range(len(atts)):
-        tmp = np.array(a_sample_ipt, copy=True)
-        tmp[:, i] = 1 - tmp[:, i]   # inverse attribute
-        tmp = data.Celeba.check_attribute_conflict(tmp, atts[i], atts)
-        b_sample_ipt_list.append(tmp)
+    for ep in tqdm.trange(args.n_epochs, desc='Epoch Loop'):
+        # learning rate
+        lr_ipt = lr_fn(ep)
 
-    it_per_epoch = len(tr_data) // (batch_size * (n_d + 1))
-    max_it = epoch * it_per_epoch
-    for it in range(sess.run(it_cnt), max_it):
-        with pylib.Timer(is_output=False) as t:
-            sess.run(update_cnt)
-
-            # which epoch
-            epoch = it // it_per_epoch
-            it_in_epoch = it % it_per_epoch + 1
-
-            # learning rate
-            lr_ipt = lr_base / (10 ** (epoch // 100))
+        for it in tqdm.trange(len_train_dataset, desc='Inner Epoch Loop'):
+            if it + ep * len_train_dataset < sess.run(step_cnt):
+                continue
+            step = sess.run(update_cnt)
 
             # train D
-            for i in range(n_d):
-                d_summary_opt, _ = sess.run([d_summary, d_step], feed_dict={lr: lr_ipt})
-            summary_writer.add_summary(d_summary_opt, it)
-
+            if step % (args.n_d + 1) != 0:
+                D_train_step(lr=lr_ipt)
             # train G
-            g_summary_opt, _ = sess.run([g_summary, g_step], feed_dict={lr: lr_ipt})
-            summary_writer.add_summary(g_summary_opt, it)
-
-            # display
-            if (it + 1) % 1 == 0:
-                print("Epoch: (%3d) (%5d/%5d) Time: %s!" % (epoch, it_in_epoch, it_per_epoch, t))
+            else:
+                G_train_step(lr=lr_ipt)
 
             # save
-            if (it + 1) % 1000 == 0:
-                save_path = saver.save(sess, '%s/Epoch_(%d)_(%dof%d).ckpt' % (ckpt_dir, epoch, it_in_epoch, it_per_epoch))
-                print('Model is saved at %s!' % save_path)
+            if step % (1000 * (args.n_d + 1)) == 0:
+                checkpoint.save(step)
 
             # sample
-            if (it + 1) % 100 == 0:
-                x_sample_opt_list = [xa_sample_ipt, np.full((n_sample, img_size, img_size // 10, 3), -1.0)]
-                for i, b_sample_ipt in enumerate(b_sample_ipt_list):
-                    _b_sample_ipt = (b_sample_ipt * 2 - 1) * thres_int
-                    if i > 0:   # i == 0 is for reconstruction
-                        _b_sample_ipt[..., i - 1] = _b_sample_ipt[..., i - 1] * test_int / thres_int
-                    x_sample_opt_list.append(sess.run(x_sample, feed_dict={xa_sample: xa_sample_ipt, _b_sample: _b_sample_ipt}))
-                sample = np.concatenate(x_sample_opt_list, 2)
-
-                save_dir = './output/%s/sample_training' % experiment_name
-                pylib.mkdir(save_dir)
-                im.imwrite(im.immerge(sample, n_sample, 1), '%s/Epoch_(%d)_(%dof%d).jpg' % (save_dir, epoch, it_in_epoch, it_per_epoch))
-except:
+            if step % (100 * (args.n_d + 1)) == 0:
+                sample(ep, it)
+except Exception:
     traceback.print_exc()
 finally:
-    save_path = saver.save(sess, '%s/Epoch_(%d)_(%dof%d).ckpt' % (ckpt_dir, epoch, it_in_epoch, it_per_epoch))
-    print('Model is saved at %s!' % save_path)
+    checkpoint.save(step)
     sess.close()

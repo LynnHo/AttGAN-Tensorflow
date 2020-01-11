@@ -1,5 +1,1 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-from tflib.ops.layers import *
+from tflib.ops.ops import *
