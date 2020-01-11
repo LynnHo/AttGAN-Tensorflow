@@ -1,8 +1,14 @@
+***New***
+
+- We clean up the code to make it more readable! The old version is here: [v1](https://github.com/LynnHo/AttGAN-Tensorflow/tree/v1).
+
+<hr style="height:1px" />
+
 <p align="center"> <img src="./pics/first_view.png" width="36%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./pics/slide.png" width="54%"> </p>
 
 <p align="center"> <img src="./pics/style.jpg" width="92%"> </p>
 
----
+<hr style="height:1px" />
 
 # <p align="center"> [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) <br> <sub><sub> [TIP Nov. 2019](https://ieeexplore.ieee.org/document/8718508?source=authoralert), [arXiv Nov. 2017](https://arxiv.org/pdf/1711.10678v1.pdf) </sub></sub> </p>
 
