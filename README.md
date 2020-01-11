@@ -179,9 +179,7 @@
         unzip ./output/AttGAN_128.zip -d ./output/
         ```
 
-    - testing
-
-        - see above
+    - testing (see above)
 
 
 ## Citation
