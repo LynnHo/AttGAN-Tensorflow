@@ -182,6 +182,10 @@
     - testing (see above)
 
 
+- Custom Dataset Example
+
+    - [AttGAN-Cartoon](https://github.com/LynnHo/AttGAN-Cartoon-Tensorflow)
+
 ## Citation
 
 If you find [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) useful in your research work, please consider citing:
