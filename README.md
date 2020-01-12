@@ -182,7 +182,7 @@
     - testing (see above)
 
 
-- Custom Dataset Example
+- Example for Custom Dataset
 
     - [AttGAN-Cartoon](https://github.com/LynnHo/AttGAN-Cartoon-Tensorflow)
 
