@@ -170,7 +170,7 @@
 
             - *G only*
 
-        - [AttGAN_384_generator_only.zip](x) (x)
+        - [AttGAN_384_generator_only.zip](https://drive.google.com/open?id=1scaKWcWIpTfsV0yrWCI-wg_JDmDsKKm1) (91.1MB)
 
 
     - unzip the file (AttGAN_128.zip for example)
