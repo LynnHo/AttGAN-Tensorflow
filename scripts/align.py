@@ -110,13 +110,14 @@ def work(i):  # a single work
         print('%s fails!' % img_names[i])
 
 
-pool = Pool(args.n_worker)
-name_landmark_strs = list(tqdm.tqdm(pool.imap(work, range(len(img_names))), total=len(img_names)))
-pool.close()
-pool.join()
+if __name__ == '__main__':
+    pool = Pool(args.n_worker)
+    name_landmark_strs = list(tqdm.tqdm(pool.imap(work, range(len(img_names))), total=len(img_names)))
+    pool.close()
+    pool.join()
 
-landmarks_path = os.path.join(save_dir, 'landmark.txt')
-with open(landmarks_path, 'w') as f:
-    for name_landmark_str in name_landmark_strs:
-        if name_landmark_str:
-            f.write(name_landmark_str + '\n')
+    landmarks_path = os.path.join(save_dir, 'landmark.txt')
+    with open(landmarks_path, 'w') as f:
+        for name_landmark_str in name_landmark_strs:
+            if name_landmark_str:
+                f.write(name_landmark_str + '\n')
