@@ -12,7 +12,7 @@
 
 # <p align="center"> [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) <br> <sub><sub> [TIP Nov. 2019](https://ieeexplore.ieee.org/document/8718508?source=authoralert), [arXiv Nov. 2017](https://arxiv.org/pdf/1711.10678v1.pdf) </sub></sub> </p>
 
-**TensorFlow** implementation of **AttGAN**: Facial Attribute Editing by Only Changing What You Want
+**TensorFlow** implementation of **AttGAN**: Facial Attribute Editing by Only Changing What You Want.
 
 <p align="center"> <img src="./pics/schema.jpg" width="100%"> </p>
 
@@ -61,8 +61,6 @@
 
         source activate AttGAN
 
-        conda install -c anaconda tensorflow-gpu=1.15
-
         conda install -c anaconda opencv
 
         conda install -c anaconda scikit-image
@@ -70,6 +68,8 @@
         conda install -c anaconda tqdm
 
         conda install -c conda-forge oyaml
+
+        conda install -c anaconda tensorflow-gpu=1.15
         ```
 
 - Data Preparation
