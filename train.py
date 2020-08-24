@@ -44,7 +44,7 @@ py.arg('--g_attribute_loss_weight', type=float, default=10.0)
 py.arg('--g_reconstruction_loss_weight', type=float, default=100.0)
 py.arg('--weight_decay', type=float, default=0.0)
 
-py.arg('--n_samples', type=int, default=24)
+py.arg('--n_samples', type=int, default=12)
 py.arg('--test_int', type=float, default=2.0)
 
 py.arg('--experiment_name', default='default')
@@ -216,6 +216,7 @@ def sample_graph():
     # ======================================
 
     # placeholders & inputs
+    val_next = val_iter.get_next()
     xa = tf.placeholder(tf.float32, shape=[None, args.crop_size, args.crop_size, 3])
     b_ = tf.placeholder(tf.float32, shape=[None, n_atts])
 
@@ -231,7 +232,7 @@ def sample_graph():
 
     def run(epoch, iter):
         # data for sampling
-        xa_ipt, a_ipt = sess.run(val_iter.get_next())
+        xa_ipt, a_ipt = sess.run(val_next)
         b_ipt_list = [a_ipt]  # the first is for reconstruction
         for i in range(n_atts):
             tmp = np.array(a_ipt, copy=True)
