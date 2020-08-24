@@ -61,6 +61,8 @@ def sample_graph():
     # =               graph                =
     # ======================================
 
+    test_next = test_iter.get_next()
+
     if not os.path.exists(py.join(output_dir, 'generator.pb')):
         # model
         Genc, Gdec, _ = module.get_model(args.model, n_atts, weight_decay=args.weight_decay)
@@ -100,7 +102,7 @@ def sample_graph():
         cnt = 0
         for _ in tqdm.trange(len_test_dataset):
             # data for sampling
-            xa_ipt, a_ipt = sess.run(test_iter.get_next())
+            xa_ipt, a_ipt = sess.run(test_next)
             b_ipt = np.copy(a_ipt)
             for test_att_name in args.test_att_names:
                 i = args.att_names.index(test_att_name)
