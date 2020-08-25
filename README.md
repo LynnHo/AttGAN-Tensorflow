@@ -151,7 +151,7 @@
             CUDA_VISIBLE_DEVICES=0 \
             python test.py \
             --img_dir ./data/CelebAMask-HQ/CelebA-HQ-img \
-            --test_label_path ./data/CelebAMask-HQ/train_label.txt \
+            --test_label_path ./data/CelebAMask-HQ/test_label.txt \
             --experiment_name AttGAN_128_CelebA-HQ
             ```
 
