@@ -74,7 +74,7 @@
 
 - Data Preparation
 
-    - [CelebA](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf)-unaligned (10.2GB, higher quality than the aligned data)
+    - Option 1: [CelebA](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf)-unaligned (higher quality than the aligned data, 10.2GB)
 
         - download the dataset
 
@@ -92,6 +92,18 @@
             python ./scripts/align.py
             ```
 
+    - Option 2: CelebA-HQ (we use the data from [CelebAMask-HQ](https://github.com/switchablenorms/CelebAMask-HQ), 3.2GB)
+
+        - CelebAMask-HQ.zip (move to **./data/CelebAMask-HQ.zip**): [Google Drive](https://drive.google.com/open?id=1badu11NqxGf6qM3PTTooQDJvQbejgbTv) or [Baidu Netdisk](https://pan.baidu.com/s/1wN1E-B1bJ7mE1mrn9loj5g)
+
+        - unzip and process the data
+
+            ```console
+            unzip ./data/CelebAMask-HQ.zip -d ./data/
+
+            python ./scripts/split_CelebA-HQ.py
+            ```
+
 - Run AttGAN
 
     - *NOTICE: if you create a new conda environment, remember to activate it before any command*
@@ -103,12 +115,26 @@
     - training (see [examples.md](./examples.md) for more training commands)
 
         ```console
+        \\ for CelebA
         CUDA_VISIBLE_DEVICES=0 \
         python train.py \
         --load_size 143 \
         --crop_size 128 \
         --model model_128 \
         --experiment_name AttGAN_128
+
+        \\ for CelebA-HQ
+        CUDA_VISIBLE_DEVICES=0 \
+        python train.py \
+        --img_dir ./data/CelebAMask-HQ/CelebA-HQ-img \
+        --train_label_path ./data/CelebAMask-HQ/train_label.txt \
+        --val_label_path ./data/CelebAMask-HQ/val_label.txt \
+        --load_size 128 \
+        --crop_size 128 \
+        --n_epochs 200 \
+        --epoch_start_decay 100 \
+        --model model_128 \
+        --experiment_name AttGAN_128_CelebA-HQ
         ```
 
     - testing
@@ -116,15 +142,24 @@
         - **single** attribute editing (inversion)
 
             ```console
+            \\ for CelebA
             CUDA_VISIBLE_DEVICES=0 \
             python test.py \
             --experiment_name AttGAN_128
+
+            \\ for CelebA-HQ
+            CUDA_VISIBLE_DEVICES=0 \
+            python test.py \
+            --img_dir ./data/CelebAMask-HQ/CelebA-HQ-img \
+            --test_label_path ./data/CelebAMask-HQ/train_label.txt \
+            --experiment_name AttGAN_128_CelebA-HQ
             ```
 
 
         - **multiple** attribute editing (inversion) example
 
             ```console
+            \\ for CelebA
             CUDA_VISIBLE_DEVICES=0 \
             python test_multi.py \
             --test_att_names Bushy_Eyebrows Pale_Skin \
@@ -134,6 +169,7 @@
         - attribute sliding example
 
             ```console
+            \\ for CelebA
             CUDA_VISIBLE_DEVICES=0 \
             python test_slide.py \
             --test_att_name Pale_Skin \
