@@ -1,6 +1,6 @@
 ***New***
 
-- We clean up the code to make it more readable! The old version is here: [v1](https://github.com/LynnHo/AttGAN-Tensorflow/tree/v1).
+- 11 Jan 2020: We clean up the code to make it more readable! The old version is here: [v1](https://github.com/LynnHo/AttGAN-Tensorflow/tree/v1).
 
 <hr style="height:1px" />
 
