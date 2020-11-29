@@ -72,6 +72,12 @@
         conda install -c anaconda tensorflow-gpu=1.15
         ```
 
+    - *NOTICE: if you create a new conda environment, remember to activate it before any other command*
+
+        ```console
+        source activate AttGAN
+        ```
+
 - Data Preparation
 
     - Option 1: [CelebA](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf)-unaligned (higher quality than the aligned data, 10.2GB)
@@ -105,12 +111,6 @@
             ```
 
 - Run AttGAN
-
-    - *NOTICE: if you create a new conda environment, remember to activate it before any command*
-
-        ```console
-        source activate AttGAN
-        ```
 
     - training (see [examples.md](./examples.md) for more training commands)
 
