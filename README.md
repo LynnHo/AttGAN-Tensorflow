@@ -22,7 +22,7 @@
 
     - [AttGAN-PyTorch](https://github.com/elvisyjlin/AttGAN-PyTorch) by Yu-Jing Lin
 
-    - [AttGAN-PaddlePaddle](https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/gan) by ceci3 and zhumanyu (**AttGAN is one of the official reproduced models of [PaddlePaddle](https://github.com/PaddlePaddle?type=source)**)
+    - [AttGAN-PaddlePaddle](https://github.com/PaddlePaddle/models/tree/release/1.7/PaddleCV/gan) by ceci3 and zhumanyu (**AttGAN is one of the official reproduced models of [PaddlePaddle](https://github.com/PaddlePaddle?type=source)**)
 
 - Closely related works
 
