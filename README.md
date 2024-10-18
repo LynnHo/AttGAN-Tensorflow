@@ -2,7 +2,7 @@
 
 - 11 Jan 2020: We clean up the code to make it more readable! The old version is here: [v1](https://github.com/LynnHo/AttGAN-Tensorflow/tree/v1).
 
-<hr style="height:1px" />
+#
 
 <p align="center"> <img src="./pics/first_view.png" width="36%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./pics/slide.png" width="54%"> </p>
 
