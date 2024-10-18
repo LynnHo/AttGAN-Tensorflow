@@ -1,18 +1,20 @@
-***News***
-
-- 11 Jan 2020: We clean up the code to make it more readable! The old version is here: [v1](https://github.com/LynnHo/AttGAN-Tensorflow/tree/v1).
-
-<hr style="height:1px" />
-
 <p align="center"> <img src="./pics/first_view.png" width="36%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./pics/slide.png" width="54%"> </p>
 
 <p align="center"> <img src="./pics/style.jpg" width="92%"> </p>
 
-<hr style="height:1px" />
+<h1 align="center">
+    <a href="https://ieeexplore.ieee.org/document/8718508?source=authoralert">AttGAN</a>
+</h1>
 
-# <p align="center"> [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) <br> <sub><sub> [TIP Nov. 2019](https://ieeexplore.ieee.org/document/8718508?source=authoralert), [arXiv Nov. 2017](https://arxiv.org/pdf/1711.10678v1.pdf) </sub></sub> </p>
+<a href="https://ieeexplore.ieee.org/document/8718508?source=authoralert"><img src="https://img.shields.io/badge/TIP 2019-3A98B9?label=%F0%9F%93%9D&labelColor=FFFDD0" style="height: 28px" /></a>
+<a href="https://arxiv.org/pdf/1711.10678v1.pdf"><img src="https://img.shields.io/badge/arXiv%202017-B31B1B?label=%F0%9F%93%9D&labelColor=FFFDD0" style="height: 28px" /></a>
 
-**TensorFlow** implementation of **AttGAN**: Facial Attribute Editing by Only Changing What You Want.
+> **[AttGAN: Facial Attribute Editing by Only Changing What You Want](https://ieeexplore.ieee.org/document/8718508?source=authoralert)** \
+> [Zhenliang He](https://lynnho.github.io)<sup>1,2</sup>, [Wangmeng Zuo](https://scholar.google.com/citations?user=rUOpCEYAAAAJ)<sup>4</sup>, [Meina Kan](https://scholar.google.com/citations?user=4AKCKKEAAAAJ)<sup>1</sup>, [Shiguang Shan](https://scholar.google.com/citations?user=Vkzd7MIAAAAJ)<sup>1,3</sup>, [Xilin Chen](https://scholar.google.com/citations?user=vVx2v20AAAAJ)<sup>1</sup> \
+> <sup>1</sup>Key Lab of Intelligent Information Processing, Institute of Computing Technology, CAS, China \
+> <sup>2</sup>University of Chinese Academy of Sciences, China \
+> <sup>3</sup>CAS Center for Excellence in Brain Science and Intelligence Technology, China \
+> <sup>3</sup>School of Computer Science and Technology, Harbin Institute of Technology, China
 
 <p align="center"> <img src="./pics/schema.jpg" width="100%"> </p>
 
