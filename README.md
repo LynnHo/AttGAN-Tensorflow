@@ -14,7 +14,7 @@
 > <sup>1</sup>Key Lab of Intelligent Information Processing, Institute of Computing Technology, CAS, China \
 > <sup>2</sup>University of Chinese Academy of Sciences, China \
 > <sup>3</sup>CAS Center for Excellence in Brain Science and Intelligence Technology, China \
-> <sup>3</sup>School of Computer Science and Technology, Harbin Institute of Technology, China
+> <sup>4</sup>School of Computer Science and Technology, Harbin Institute of Technology, China
 
 <p align="center"> <img src="./pics/schema.jpg" width="100%"> </p>
 
