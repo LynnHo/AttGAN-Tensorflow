@@ -3,13 +3,13 @@
 <p align="center"> <img src="./pics/style.jpg" width="92%"> </p>
 
 <h1 align="center">
-    <a href="https://ieeexplore.ieee.org/document/8718508?source=authoralert">AttGAN</a>
+    <a href="https://kdocs.cn/l/cpp7J2ZsFUW7">AttGAN</a>
 </h1>
 
-<a href="https://ieeexplore.ieee.org/document/8718508?source=authoralert"><img src="https://img.shields.io/badge/TIP 2019-3A98B9?label=%F0%9F%93%9D&labelColor=FFFDD0" style="height: 28px" /></a>
+<a href="https://kdocs.cn/l/cpp7J2ZsFUW7"><img src="https://img.shields.io/badge/TIP 2019-3A98B9?label=%F0%9F%93%9D&labelColor=FFFDD0" style="height: 28px" /></a>
 <a href="https://arxiv.org/pdf/1711.10678v1.pdf"><img src="https://img.shields.io/badge/arXiv%202017-B31B1B?label=%F0%9F%93%9D&labelColor=FFFDD0" style="height: 28px" /></a>
 
-> **[AttGAN: Facial Attribute Editing by Only Changing What You Want](https://ieeexplore.ieee.org/document/8718508?source=authoralert)** \
+> **[AttGAN: Facial Attribute Editing by Only Changing What You Want](https://kdocs.cn/l/cpp7J2ZsFUW7)** \
 > [Zhenliang He](https://lynnho.github.io)<sup>1,2</sup>, [Wangmeng Zuo](https://scholar.google.com/citations?user=rUOpCEYAAAAJ)<sup>4</sup>, [Meina Kan](https://scholar.google.com/citations?user=4AKCKKEAAAAJ)<sup>1</sup>, [Shiguang Shan](https://scholar.google.com/citations?user=Vkzd7MIAAAAJ)<sup>1,3</sup>, [Xilin Chen](https://scholar.google.com/citations?user=vVx2v20AAAAJ)<sup>1</sup> \
 > <sup>1</sup>Key Lab of Intelligent Information Processing, Institute of Computing Technology, CAS, China \
 > <sup>2</sup>University of Chinese Academy of Sciences, China \
@@ -220,7 +220,7 @@
 
 ## Citation
 
-If you find [AttGAN](https://ieeexplore.ieee.org/document/8718508?source=authoralert) useful in your research work, please consider citing:
+If you find [AttGAN](https://kdocs.cn/l/cpp7J2ZsFUW7) useful in your research work, please consider citing:
 
     @ARTICLE{8718508,
     author={Z. {He} and W. {Zuo} and M. {Kan} and S. {Shan} and X. {Chen}},
